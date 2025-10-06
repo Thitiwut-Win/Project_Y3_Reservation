@@ -1,52 +1,32 @@
 "use client";
+
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 
 export default function ThemeToggle() {
-    const [dark, setDark] = useState(false);
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        const root = document.documentElement;
-        const saved = localStorage.getItem("theme");
+    // Prevent hydration mismatch
+    useEffect(() => setMounted(true), []);
 
-        if (saved === "dark") {
-            root.className = "dark";
-            setDark(true);
-        } else if (saved === "light") {
-            root.className = "";
-            setDark(false);
-        } else {
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            root.className = prefersDark ? "dark" : "";
-            setDark(prefersDark);
-        }
-    }, []);
-
-    const toggleTheme = () => {
-        const root = document.documentElement;
-        if (dark) {
-            root.className = "";
-            localStorage.setItem("theme", "light");
-            setDark(false);
-        } else {
-            root.className = "dark";
-            localStorage.setItem("theme", "dark");
-            setDark(true);
-        }
-    };
+    if (!mounted) return null;
 
     return (
         <button
-            onClick={toggleTheme}
-            className={`relative w-14 h-8 flex items-center rounded-full p-1 transition-colors ${dark ? "bg-slate-700" : "bg-yellow-400"
-                }`}
-            aria-label="Toggle theme"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="relative flex items-center w-16 h-8 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors"
         >
             <span
-                className={`absolute w-6 h-6 rounded-full bg-white shadow transform transition-transform ${dark ? "translate-x-6" : "translate-x-0"
+                className={`absolute left-1 top-1 w-6 h-6 flex items-center justify-center rounded-full bg-white dark:bg-black transition-transform ${theme === "dark" ? "translate-x-8" : "translate-x-0"
                     }`}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
             >
-                {dark ? "🌙" : "☀️"}
+                {theme === "dark" ? (
+                    <MoonIcon className="w-4 h-4 text-blue-400" />
+                ) : (
+                    <SunIcon className="w-4 h-4 text-yellow-500" />
+                )}
             </span>
         </button>
     );

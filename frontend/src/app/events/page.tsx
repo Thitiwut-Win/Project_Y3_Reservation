@@ -20,11 +20,11 @@ export default function EventsPage() {
       <ul className="space-y-4">
         {events.map((event) => (
           <li key={event._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
-            <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-300">{event.name}</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{event.name}</h2>
+            <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">
               {event.venue} — {new Date(event.date).toLocaleString()}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">{event.availableSeats} seats available</p>
+            <p className="text-sm text-gray-900 dark:text-gray-100 mb-1">{event.availableSeats} seats available</p>
             <Link
               href={`/events/${event._id}`}
               className="text-blue-600 underline"
