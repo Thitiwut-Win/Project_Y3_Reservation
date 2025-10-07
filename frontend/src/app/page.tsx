@@ -13,6 +13,7 @@ export default function HomePage() {
 		const fetchEvents = async () => {
 			try {
 				const res = await axios.get<Event[]>(API_ROUTES.events);
+				console.log(API_ROUTES.events)
 				setEvents(res.data);
 			} catch (err) {
 				console.error("Error fetching events:", err);
