@@ -22,7 +22,8 @@ export default function TicketsPage() {
 
 		const fetchTickets = async () => {
 			try {
-				const token = (session?.user as any)?.backendToken;
+				const user = session?.user as { backendToken?: string };
+				const token = user?.backendToken;
 				if (!token) {
 					router.replace("/authen/login");
 					return;
@@ -31,6 +32,7 @@ export default function TicketsPage() {
 				const res = await axios.get(`${API_ROUTES.tickets}/me`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
+
 				setTickets(res.data.tickets);
 			} catch (err) {
 				console.error("Error fetching tickets:", err);
