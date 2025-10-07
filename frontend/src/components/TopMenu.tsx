@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
-import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 
 export default function TopMenu() {

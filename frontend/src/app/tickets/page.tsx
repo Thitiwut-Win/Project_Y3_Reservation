@@ -48,7 +48,7 @@ export default function TicketsPage() {
 		};
 
 		fetchTickets();
-	}, [status]);
+	}, [status, session, router]);
 
 	const handleCancel = async (ticketId: string) => {
 		if (!confirm("Are you sure you want to cancel this ticket?")) return;

@@ -6,7 +6,6 @@ import { API_ROUTES } from "@/utils/apiRoutes";
 
 export default function HomePage() {
 	const [events, setEvents] = useState<any[]>([]);
-	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 	useEffect(() => {
 		axios
