@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { API_ROUTES } from "@/utils/apiRoutes";
 import { Event } from "@/types/Event";
 
 export default function EventsPage() {
@@ -13,7 +12,7 @@ export default function EventsPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get(API_ROUTES.events);
+        const res = await axios.get(`${process.env.API_URL}/api/events`);
         setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events:", err);

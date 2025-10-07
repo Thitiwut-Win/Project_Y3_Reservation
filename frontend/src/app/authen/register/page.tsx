@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { API_ROUTES } from "@/utils/apiRoutes";
 import { useSession, signIn } from "next-auth/react";
 
 export default function RegisterPage() {
@@ -21,7 +20,7 @@ export default function RegisterPage() {
 
 	const handleRegister = async () => {
 		try {
-			const res = await axios.post(API_ROUTES.register, { name, email, password });
+			const res = await axios.post(`${process.env.API_URL}/api/auth/register`, { name, email, password });
 			window.dispatchEvent(new Event("auth-change"));
 			alert("Registration successful!");
 			router.push("/authen/login");

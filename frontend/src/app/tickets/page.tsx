@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { API_ROUTES } from "@/utils/apiRoutes";
 import { Ticket } from "@/types/Ticket";
 
 export default function TicketsPage() {
@@ -29,7 +28,7 @@ export default function TicketsPage() {
 					return;
 				}
 
-				const res = await axios.get(`${API_ROUTES.tickets}/me`, {
+				const res = await axios.get(`${process.env.API_URL}/api/tickets/me`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 
@@ -54,7 +53,7 @@ export default function TicketsPage() {
 				return;
 			}
 
-			await axios.delete(`${API_ROUTES.tickets}/${ticketId}`, {
+			await axios.delete(`${process.env.API_URL}/api/tickets/${ticketId}`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
