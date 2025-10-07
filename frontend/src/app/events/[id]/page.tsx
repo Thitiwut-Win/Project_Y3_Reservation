@@ -1,84 +1,94 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import axios from "axios";
+import { getEvent } from "@/services/eventService";
+import { reserveTickets } from "@/services/ticketService";
+import { toast } from "sonner";
+import { Event as EventType } from "@/types/Event";
 
-export default function Event() {
+export default function EventPage() {
   const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<any>(null);
+  const [event, setEvent] = useState<EventType | null>(null);
   const [seats, setSeats] = useState<number>(1);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [loading, setLoading] = useState<boolean>(true);
+  const [reserving, setReserving] = useState<boolean>(false);
 
   useEffect(() => {
-    axios
-      .get(`${apiUrl}/api/events/${id}`)
-      .then((res) => setEvent(res.data))
-      .catch((err) => console.error("Error fetching event:", err));
+    const fetchEvent = async () => {
+      try {
+        const data = await getEvent(id);
+        setEvent(data);
+      } catch (err) {
+        toast.error("Failed to load event details.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
   }, [id]);
 
-  const handleReserve = async (seats: number) => {
+  const handleReserve = async () => {
+    if (!event) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warning("You must be logged in to reserve tickets.");
+      return;
+    }
+
+    if (seats < 1) {
+      toast.warning("Please select at least one seat.");
+      return;
+    }
+
+    setReserving(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You must be logged in to reserve tickets.");
-        return;
-      }
-
-      const res = await axios.post(
-        `${apiUrl}/api/tickets/reserve/${id}`,
-        { seats },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (res.data.success) {
-        alert(
-          `Reservation successful! Reserved ${res.data.tickets.length} ticket(s).`
-        );
-      } else {
-        alert("Reservation failed.");
+      const res = await reserveTickets(event._id, seats);
+      if (res.success) {
+        toast.success(`Reserved ${res.tickets.length} ticket(s) successfully!`);
+        setEvent({
+          ...event,
+          availableSeats: event.availableSeats - res.tickets.length,
+        });
       }
     } catch (err: any) {
-      if (err.response) {
-        alert(err.response.data.message || "Reservation failed");
-      } else {
-        alert("Reservation failed. Check your network.");
-      }
+      toast.error(err.response?.data?.message || "Reservation failed.");
+    } finally {
+      setReserving(false);
     }
+
   };
 
-  if (!event) return <p>Loading...</p>;
+  if (loading) return <p className="p-6">Loading event details...</p>;
 
-  return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold">{event.name}</h1>
-      <p>{event.venue}</p>
-      <p>{new Date(event.date).toLocaleString()}</p>
-      <p>{event.availableSeats} seats left</p>
+  if (!event) return <p className="p-6 text-red-500">Event not found.</p>;
 
-      <div className="mt-4 flex items-center gap-2">
-        <label htmlFor="seats" className="font-medium">
-          Seats:
-        </label>
-        <input
-          id="seats"
-          type="number"
-          min={1}
-          max={event.availableSeats}
-          value={seats}
-          onChange={(e) => setSeats(Number(e.target.value))}
-          className="border px-2 py-1 rounded w-16"
-        />
-        <button
-          onClick={() => handleReserve(seats)}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Reserve
-        </button>
-      </div>
-    </main>
+  return (<main className="p-6 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen"> <h1 className="text-2xl font-bold mb-2">{event.name}</h1> <p className="text-gray-600 mb-1">{event.venue}</p> <p className="mb-2">{new Date(event.date).toLocaleString()}</p> <p className="font-medium mb-4">{event.availableSeats} seats left</p>
+
+    < div className="flex items-center gap-2" >
+      <label htmlFor="seats" className="font-medium">
+        Seats:
+      </label>
+      <input
+        id="seats"
+        type="number"
+        min={1}
+        max={event.availableSeats}
+        value={seats}
+        onChange={(e) => setSeats(Number(e.target.value))}
+        className="border px-2 py-1 rounded w-16"
+      />
+      <button
+        onClick={handleReserve}
+        disabled={reserving}
+        className={`${reserving ? "bg-yellow-400 dark:bg-blue-400" : "bg-yellow-600 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600"
+          } text-white px-4 py-2 rounded transition`}
+      >
+        {reserving ? "Reserving..." : "Reserve"}
+      </button>
+    </div >
+  </main >
+
   );
 }

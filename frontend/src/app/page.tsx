@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_ROUTES } from "@/utils/apiRoutes";
 
 export default function HomePage() {
 	const [events, setEvents] = useState<any[]>([]);
@@ -9,7 +10,7 @@ export default function HomePage() {
 
 	useEffect(() => {
 		axios
-			.get(`${apiUrl}/api/events`)
+			.get(API_ROUTES.events)
 			.then((res) => setEvents(res.data))
 			.catch((err) => console.error("Error fetching events:", err));
 	}, []);
