@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
 	const handleRegister = async () => {
 		try {
-			const res = await axios.post(`${process.env.API_URL}/api/auth/register`, { name, email, password });
+			const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, { name, email, password });
 			window.dispatchEvent(new Event("auth-change"));
 			alert("Registration successful!");
 			router.push("/authen/login");

@@ -28,7 +28,7 @@ export default function TicketsPage() {
 					return;
 				}
 
-				const res = await axios.get(`${process.env.API_URL}/api/tickets/me`, {
+				const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/me`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 
@@ -53,7 +53,7 @@ export default function TicketsPage() {
 				return;
 			}
 
-			await axios.delete(`${process.env.API_URL}/api/tickets/${ticketId}`, {
+			await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/${ticketId}`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 

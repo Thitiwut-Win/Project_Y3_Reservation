@@ -11,8 +11,8 @@ export default function HomePage() {
 	useEffect(() => {
 		const fetchEvents = async () => {
 			try {
-				const res = await axios.get<Event[]>(`${process.env.API_URL}/api/events`);
-				console.log(`${process.env.API_URL}/api/events`)
+				const res = await axios.get<Event[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/events`);
+				console.log(`${process.env.NEXT_PUBLIC_API_URL}/api/events`)
 				setEvents(res.data);
 			} catch (err) {
 				console.error("Error fetching events:", err);
