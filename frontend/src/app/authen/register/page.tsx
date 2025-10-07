@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { API_ROUTES } from "@/utils/apiRoutes";
 import { useSession, signIn } from "next-auth/react";
@@ -25,9 +25,13 @@ export default function RegisterPage() {
 			window.dispatchEvent(new Event("auth-change"));
 			alert("Registration successful!");
 			router.push("/authen/login");
-		} catch (err: any) {
-			if (err.response) setError(err.response.data.message || "Registration failed.");
-			else setError("Network error. Try again later.");
+		} catch (err: unknown) {
+			if (axios.isAxiosError(err)) {
+				const axiosErr = err as AxiosError<{ message?: string }>;
+				setError(axiosErr.response?.data?.message || "Registration failed.");
+			} else {
+				setError("Network error. Try again later.");
+			}
 		}
 	};
 

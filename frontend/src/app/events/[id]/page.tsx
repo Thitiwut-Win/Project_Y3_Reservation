@@ -5,6 +5,7 @@ import { getEvent } from "@/services/eventService";
 import { reserveTickets } from "@/services/ticketService";
 import { toast } from "sonner";
 import { Event as EventType } from "@/types/Event";
+import axios, { AxiosError } from "axios";
 
 export default function EventPage() {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +45,11 @@ export default function EventPage() {
 
     setReserving(true);
     try {
-      const res = await reserveTickets(event._id, seats);
+      const res = (await reserveTickets(event._id, seats)) as {
+        success: boolean;
+        tickets: { _id: string; status: string }[];
+      };
+
       if (res.success) {
         toast.success(`Reserved ${res.tickets.length} ticket(s) successfully!`);
         setEvent({
@@ -52,12 +57,16 @@ export default function EventPage() {
           availableSeats: event.availableSeats - res.tickets.length,
         });
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Reservation failed.");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        toast.error(axiosErr.response?.data?.message || "Reservation failed.");
+      } else {
+        toast.error("Reservation failed.");
+      }
     } finally {
       setReserving(false);
     }
-
   };
 
   if (loading) return <p className="p-6">Loading event details...</p>;

@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { API_ROUTES } from "@/utils/apiRoutes";
+import { Event } from "@/types/Event";
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

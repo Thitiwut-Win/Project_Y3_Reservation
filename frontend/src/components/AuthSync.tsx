@@ -4,24 +4,28 @@ import { useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function AuthSync() {
-    const { data: session } = useSession();
-    const router = useRouter();
-    const pathname = usePathname();
-    const hasRedirected = useRef(false);
+	const { data: session } = useSession();
+	const router = useRouter();
+	const pathname = usePathname();
+	const hasRedirected = useRef(false);
 
-    useEffect(() => {
-        if (session?.user) {
-            const backendToken =
-                (session.user as any).backendToken || session.user.email || "google";
-            localStorage.setItem("token", backendToken);
-            window.dispatchEvent(new Event("auth-change"));
+	useEffect(() => {
+		if (session?.user) {
+			const user = session.user as { backendToken?: string; email?: string };
+			const backendToken = user.backendToken ?? user.email ?? "google";
 
-            if (!hasRedirected.current && ["/auth/login", "/auth/register"].includes(pathname)) {
-                hasRedirected.current = true;
-                router.push("/events");
-            }
-        }
-    }, [session, router, pathname]);
+			localStorage.setItem("token", backendToken);
+			window.dispatchEvent(new Event("auth-change"));
 
-    return null;
+			if (
+				!hasRedirected.current &&
+				["/auth/login", "/auth/register"].includes(pathname)
+			) {
+				hasRedirected.current = true;
+				router.push("/events");
+			}
+		}
+	}, [session, router, pathname]);
+
+	return null;
 }

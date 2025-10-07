@@ -1,18 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { API_ROUTES } from "@/utils/apiRoutes";
-
-interface Ticket {
-	_id: string;
-	status: string;
-	event: {
-		name: string;
-		date: string;
-	};
-}
+import { Ticket } from "@/types/Ticket";
 
 export default function TicketsPage() {
 	const { data: session, status } = useSession();
@@ -52,18 +44,34 @@ export default function TicketsPage() {
 
 	const handleCancel = async (ticketId: string) => {
 		if (!confirm("Are you sure you want to cancel this ticket?")) return;
+
 		try {
-			const token = (session?.user as any)?.backendToken;
+			const token = (session?.user as { backendToken?: string })?.backendToken;
+			if (!token) {
+				alert("You must be logged in to cancel a ticket.");
+				return;
+			}
+
 			await axios.delete(`${API_ROUTES.tickets}/${ticketId}`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
+
 			setTickets((prev) =>
-				prev.map((t) => (t._id === ticketId ? { ...t, status: "cancelled" } : t))
+				prev.map((t) =>
+					t._id === ticketId ? { ...t, status: "cancelled" } : t
+				)
 			);
+
 			alert("Ticket canceled successfully!");
-		} catch (err) {
-			console.error(err);
-			alert("Failed to cancel ticket.");
+		} catch (err: unknown) {
+			if (axios.isAxiosError(err)) {
+				const axiosErr = err as AxiosError<{ message?: string }>;
+				console.error(axiosErr.response?.data?.message || err.message);
+				alert(axiosErr.response?.data?.message || "Failed to cancel ticket.");
+			} else {
+				console.error(err);
+				alert("Unexpected error occurred.");
+			}
 		}
 	};
 
