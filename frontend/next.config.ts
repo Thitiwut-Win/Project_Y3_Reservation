@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+if (!apiUrl) {
+  console.warn("API_URL is not defined. API rewrites may fail.");
+}
+
 const nextConfig: NextConfig = {
   /* config options here */
   async rewrites() {
