@@ -6,6 +6,7 @@ import { logger } from "./middleware/logger.js";
 import authRoutes from "./routes/auth.js";
 import eventRoutes from "./routes/events.js";
 import ticketRoutes from "./routes/tickets.js";
+import paymentRoutes from "./routes/payments.js";
 
 import mongoose from "mongoose";
 
@@ -28,6 +29,7 @@ app.use(logger);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running");

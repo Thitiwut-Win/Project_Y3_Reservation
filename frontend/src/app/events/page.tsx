@@ -35,10 +35,12 @@ export default function EventsPage() {
         {events.map((event) => (
           <li key={event._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
             <h2 className="text-lg font-semibold">{event.name}</h2>
+            <p className="text-sm mb-1">{event.description}</p>
             <p className="text-sm mb-1">
               {event.venue} — {new Date(event.date).toLocaleString()}
             </p>
             <p className="text-sm mb-1">{event.availableSeats} seats available</p>
+            <p className="text-sm mb-1">{event.price} ฿</p>
             <Link href={`/events/${event._id}`} className="text-blue-600 underline">
               View Details
             </Link>

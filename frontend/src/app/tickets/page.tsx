@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { Ticket } from "@/types/Ticket";
+import { toast } from "sonner";
 
 export default function TicketsPage() {
 	const { data: session, status } = useSession();
@@ -49,7 +50,7 @@ export default function TicketsPage() {
 		try {
 			const token = (session?.user as { backendToken?: string })?.backendToken;
 			if (!token) {
-				alert("You must be logged in to cancel a ticket.");
+				toast.warning("You must be logged in to cancel a ticket.");
 				return;
 			}
 
@@ -63,15 +64,15 @@ export default function TicketsPage() {
 				)
 			);
 
-			alert("Ticket canceled successfully!");
+			toast.success("Ticket canceled successfully!");
 		} catch (err: unknown) {
 			if (axios.isAxiosError(err)) {
 				const axiosErr = err as AxiosError<{ message?: string }>;
 				console.error(axiosErr.response?.data?.message || err.message);
-				alert(axiosErr.response?.data?.message || "Failed to cancel ticket.");
+				toast.error(axiosErr.response?.data?.message || "Failed to cancel ticket.");
 			} else {
 				console.error(err);
-				alert("Unexpected error occurred.");
+				toast.error("Unexpected error occurred.");
 			}
 		}
 	};
@@ -100,7 +101,7 @@ export default function TicketsPage() {
 								onClick={() => handleCancel(ticket._id)}
 								className={`h-10 m-auto p-2 rounded-lg ${ticket.status === "cancelled"
 									? "bg-gray-400 cursor-not-allowed"
-									: "bg-red-500 hover:bg-red-600"
+									: "bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600"
 									}`}
 								disabled={ticket.status === "cancelled"}
 							>
