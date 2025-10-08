@@ -127,7 +127,7 @@ export default function PaymentPage() {
 							Scan this QR to pay {amount} ฿ via PromptPay
 						</p>
 						<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-							After payment, your tickets will appear automatically in <strong>My Tickets</strong>.
+							No need to pay, this is a demo. You can click Reserve below.
 						</p>
 						<button
 							onClick={handleReserve}

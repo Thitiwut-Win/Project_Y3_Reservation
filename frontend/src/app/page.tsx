@@ -44,7 +44,7 @@ export default function HomePage() {
 				<h3 className="text-2xl font-semibold mb-6">Upcoming Events</h3>
 
 				{loading ? (
-					<p>Loading events...</p>
+					<p>Loading events(≈10 secs) . . .</p>
 				) : events.length === 0 ? (
 					<p className="text-gray-900 dark:text-gray-100">No events available right now.</p>
 				) : (
