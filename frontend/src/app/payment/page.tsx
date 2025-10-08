@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getEvent } from "@/services/eventService";
 import { createPayment } from "@/services/paymentService";
@@ -98,43 +98,45 @@ export default function PaymentPage() {
 	if (!event) return <p className="p-6 text-red-500">Event not found.</p>;
 
 	return (
-		<main className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6 flex flex-col items-center">
-			<h1 className="text-3xl font-bold mb-4">Payment for {event.name}</h1>
-			<div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full text-center border border-gray-300 dark:border-gray-700">
-				<p>{event.venue}</p>
-				<p>{new Date(event.date).toLocaleString()}</p>
-				<p className="mt-2 font-semibold">
-					{seats} x {event.price} ฿ ={" "}
-					<span className="text-amber-500 dark:text-blue-400">{amount} ฿</span>
-				</p>
+		<Suspense fallback={<p>Loading payment...</p>}>
+			<main className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6 flex flex-col items-center">
+				<h1 className="text-3xl font-bold mb-4">Payment for {event.name}</h1>
+				<div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full text-center border border-gray-300 dark:border-gray-700">
+					<p>{event.venue}</p>
+					<p>{new Date(event.date).toLocaleString()}</p>
+					<p className="mt-2 font-semibold">
+						{seats} x {event.price} ฿ ={" "}
+						<span className="text-amber-500 dark:text-blue-400">{amount} ฿</span>
+					</p>
 
-				{!qrImage ? (
-					<button
-						onClick={handleGeneratePayment}
-						className="mt-4 bg-amber-500 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600 text-white px-6 py-2 rounded-lg transition font-semibold"
-					>
-						Generate Payment QR
-					</button>
-				) : (
-					<>
-						<img src={qrImage} alt="PromptPay QR" className="mx-auto my-4 w-56 h-56" />
-						<p className="text-sm text-gray-500 dark:text-gray-300">
-							Scan this QR to pay {amount} ฿ via PromptPay
-						</p>
-						<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-							After payment, your tickets will appear automatically in <strong>My Tickets</strong>.
-						</p>
+					{!qrImage ? (
 						<button
-							onClick={handleReserve}
-							disabled={reserving}
-							className={`${reserving ? "bg-yellow-400 dark:bg-blue-400" : "bg-yellow-600 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600"
-								} text-white px-4 py-2 rounded transition m-2`}
+							onClick={handleGeneratePayment}
+							className="mt-4 bg-amber-500 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600 text-white px-6 py-2 rounded-lg transition font-semibold"
 						>
-							{reserving ? "Reserving..." : "Reserve"}
+							Generate Payment QR
 						</button>
-					</>
-				)}
-			</div>
-		</main>
+					) : (
+						<>
+							<img src={qrImage} alt="PromptPay QR" className="mx-auto my-4 w-56 h-56" />
+							<p className="text-sm text-gray-500 dark:text-gray-300">
+								Scan this QR to pay {amount} ฿ via PromptPay
+							</p>
+							<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+								After payment, your tickets will appear automatically in <strong>My Tickets</strong>.
+							</p>
+							<button
+								onClick={handleReserve}
+								disabled={reserving}
+								className={`${reserving ? "bg-yellow-400 dark:bg-blue-400" : "bg-yellow-600 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600"
+									} text-white px-4 py-2 rounded transition m-2`}
+							>
+								{reserving ? "Reserving..." : "Reserve"}
+							</button>
+						</>
+					)}
+				</div>
+			</main>
+		</Suspense>
 	);
 }
