@@ -41,6 +41,7 @@ This web application allows users to browse available events, reserve tickets, a
 * MongoDB + Mongoose
 * JWT Authentication
 * bcrypt for password encryption
+* promptpay-qr for QR code transaction
 
 ---
 
@@ -59,8 +60,6 @@ backend/
   ├── controllers/
   └── middlewares/
 ```
-
----
 
 ## License
 
