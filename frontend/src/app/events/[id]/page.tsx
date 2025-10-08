@@ -4,8 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import { getEvent } from "@/services/eventService";
 import { Event as EventType } from "@/types/Event";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 export default function EventPage() {
+  const { data: session, status } = useSession();
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventType | null>(null);
   const [seats, setSeats] = useState<number>(1);
@@ -30,9 +32,9 @@ export default function EventPage() {
   const handleReserve = () => {
     if (!event) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.warning("You must be logged in to reserve tickets.");
+    if (status === "unauthenticated") {
+      toast.warning("Please login first.");
+      router.replace("/authen/login");
       return;
     }
 

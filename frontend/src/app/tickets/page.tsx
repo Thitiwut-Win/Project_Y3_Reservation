@@ -16,6 +16,7 @@ export default function TicketsPage() {
 		if (status === "loading") return;
 
 		if (status === "unauthenticated") {
+			toast.warning("Please login first.");
 			router.replace("/authen/login");
 			return;
 		}
@@ -25,6 +26,7 @@ export default function TicketsPage() {
 				const user = session?.user as { backendToken?: string };
 				const token = user?.backendToken;
 				if (!token) {
+					toast.warning("Please login first.");
 					router.replace("/authen/login");
 					return;
 				}
