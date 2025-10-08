@@ -30,6 +30,12 @@ export default function EventPage() {
   const handleReserve = () => {
     if (!event) return;
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warning("You must be logged in to reserve tickets.");
+      return;
+    }
+
     if (seats < 1) {
       toast.warning("Please select at least one seat.");
       return;
