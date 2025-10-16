@@ -31,7 +31,7 @@ export default function LoginPage() {
 		}
 	};
 
-	if (status === "loading") return <p className="text-center p-6">Checking session...</p>;
+	if (status === "loading") return <p className="text-center p-6">Checking session . . .</p>;
 	if (status === "authenticated") return null;
 
 	return (

@@ -12,15 +12,16 @@ export default function TicketsPage() {
 	const [tickets, setTickets] = useState<Ticket[]>([]);
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
+	let count = 0;
 
 	useEffect(() => {
 		if (status === "loading") return;
 
-		if (status === "unauthenticated") {
-			toast.warning("Please login first.");
-			router.replace("/authen/login");
-			return;
-		}
+		// if (status === "unauthenticated") {
+		// 	toast.warning("Please login first.");
+		// 	router.replace("/authen/login");
+		// 	return;
+		// }
 
 		const fetchTickets = async () => {
 			try {
