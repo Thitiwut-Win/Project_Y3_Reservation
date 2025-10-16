@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { Event } from "@/types/Event";
+import { LinearProgress } from "@mui/material";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -25,7 +26,11 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
-  if (loading) return <p className="p-6">Loading events...</p>;
+  if (loading) return
+  <div>
+    <p className="p-6">Loading events . . .</p>
+    <LinearProgress />
+  </div>;
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (

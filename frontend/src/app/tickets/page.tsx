@@ -5,6 +5,7 @@ import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { Ticket } from "@/types/Ticket";
 import { toast } from "sonner";
+import { LinearProgress } from "@mui/material";
 
 export default function TicketsPage() {
 	const { data: session, status } = useSession();
@@ -79,7 +80,11 @@ export default function TicketsPage() {
 		}
 	};
 
-	if (loading) return <p className="p-6">Loading tickets...</p>;
+	if (loading) return
+	<div>
+		<p>Loading tickets . . .</p>
+		<LinearProgress />
+	</div>
 
 	return (
 		<main className="p-6 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">

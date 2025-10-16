@@ -5,6 +5,7 @@ import { getEvent } from "@/services/eventService";
 import { Event as EventType } from "@/types/Event";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { LinearProgress } from "@mui/material";
 
 export default function EventPage() {
   const { data: session, status } = useSession();
@@ -46,7 +47,11 @@ export default function EventPage() {
     router.push(`/payment?eventId=${event._id}&seats=${seats}`);
   };
 
-  if (loading) return <p className="p-6">Loading event details...</p>;
+  if (loading) return
+  <div>
+    <p className="p-6">Loading events . . .</p>
+    <LinearProgress />
+  </div>
   if (!event) return <p className="p-6 text-red-500">Event not found.</p>;
 
   return (
