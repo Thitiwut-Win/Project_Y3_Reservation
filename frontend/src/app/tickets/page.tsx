@@ -12,7 +12,6 @@ export default function TicketsPage() {
 	const [tickets, setTickets] = useState<Ticket[]>([]);
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
-	let count = 0;
 
 	useEffect(() => {
 		if (status === "loading") return;
