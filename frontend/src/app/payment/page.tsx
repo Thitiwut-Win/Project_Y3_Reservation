@@ -13,15 +13,15 @@ export default function PaymentPage() {
 
 	const [event, setEvent] = useState<EventType | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [qrImage, setQrImage] = useState<string | null>(null);
+	const [qrImage, setQrImage] = useState<string>("");
 	const [amount, setAmount] = useState<number>(0);
 	const [reserving, setReserving] = useState<boolean>(false);
-	const [eventId, setEventId] = useState<string | null>(null);
+	const [eventId, setEventId] = useState<string>("");
 	const [seats, setSeats] = useState<number>(1);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
-		setEventId(params.get("eventId"));
+		setEventId(params.get("eventId") || "");
 		setSeats(Number(params.get("seats")) || 1);
 	}, []);
 
@@ -49,7 +49,7 @@ export default function PaymentPage() {
 		}
 
 		try {
-			const data = await createPayment(eventId!, amount, seats, token);
+			const data = await createPayment(eventId, amount, seats, token);
 			setQrImage(data.qrImage);
 			toast.success("Payment QR generated! Scan it with PromptPay.");
 		} catch (err) {

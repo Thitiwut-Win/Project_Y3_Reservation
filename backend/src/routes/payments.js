@@ -1,7 +1,7 @@
 import express from "express";
 import { authMiddleware } from "../middleware/auth.js";
-import { createPaymentSchema } from "../validators/paymentSchema.js";
-import { createPayment } from "../controllers/paymentController.js";
+import { createPaymentSchema, confirmPaymentSchema } from "../validators/paymentSchema.js";
+import { confirmPayment, createPayment } from "../controllers/paymentController.js";
 import { validateBody } from "../middleware/validate.js";
 
 const router = express.Router();
@@ -10,6 +10,6 @@ const router = express.Router();
 router.post("/create", authMiddleware, validateBody(createPaymentSchema), createPayment);
 
 // confirm
-// router.post("/confirm", validateBody(confirmPaymentSchema), confirmPayment);
+router.post("/confirm", validateBody(confirmPaymentSchema), confirmPayment);
 
 export default router;

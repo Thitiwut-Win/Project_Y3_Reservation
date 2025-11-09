@@ -6,8 +6,8 @@ export const createPaymentSchema = Joi.object({
   seats: Joi.number().positive().required(),
 });
 
-// export const confirmPaymentSchema = Joi.object({
-//   transactionId: Joi.string().required(),
-//   status: Joi.string().valid("SUCCESS", "FAILED", "PENDING").required(),
-//   paidAt: Joi.date().iso(),
-// });
+export const confirmPaymentSchema = Joi.object({
+  transactionId: Joi.string().required(),
+  status: Joi.string().valid("SUCCESS", "FAILED", "PENDING").required(),
+  paidAt: Joi.date().iso(),
+});
