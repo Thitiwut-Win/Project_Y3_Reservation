@@ -50,21 +50,21 @@ export default function RegisterPage() {
 						<input
 							type="text"
 							placeholder="Name"
-							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500"
+							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-50 dark:text-white"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 						/>
 						<input
 							type="email"
 							placeholder="Email"
-							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500"
+							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 dark:text-white"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 						/>
 						<input
 							type="password"
 							placeholder="Password"
-							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500"
+							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 dark:text-white"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						/>
