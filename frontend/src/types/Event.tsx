@@ -5,5 +5,6 @@ export interface Event {
     venue: string;
     date: string;
     availableSeats: number;
-    price: number
+    price: number;
+    category: string;
 }

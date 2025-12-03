@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
+import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
     const { theme, setTheme } = useTheme();
@@ -22,9 +22,9 @@ export default function ThemeToggle() {
                     }`}
             >
                 {theme === "dark" ? (
-                    <MoonIcon className="w-4 h-4 text-blue-400" />
+                    <Moon className="w-4 h-4 text-blue-400" fill="oklch(70.7% 0.165 254.624)" />
                 ) : (
-                    <SunIcon className="w-4 h-4 text-yellow-500" />
+                    <Sun className="w-4 h-4 text-yellow-500" fill="oklch(79.5% 0.184 86.047)" />
                 )}
             </span>
         </button>

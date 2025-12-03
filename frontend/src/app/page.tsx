@@ -5,6 +5,7 @@ import axios from "axios";
 import { Event } from "@/types/Event";
 import { LinearProgress } from "@mui/material";
 import { motion } from "framer-motion";
+import { Dumbbell, Mic, Music, Presentation } from "lucide-react";
 
 export default function HomePage() {
 	const [events, setEvents] = useState<Event[]>([]);
@@ -27,7 +28,7 @@ export default function HomePage() {
 
 	const fadeUp = {
 		hidden: { opacity: 0, y: 20 },
-		show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+		show: { opacity: 1, y: 0, transition: { duration: 0.1, ease: "easeOut" } },
 	} as const;
 	const cardStagger = {
 		hidden: {},
@@ -43,7 +44,7 @@ export default function HomePage() {
 		<main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
 
 			{/* Banner */}
-			<section className="relative overflow-hidden px-8 py-24 text-center bg-gradient-to-br 
+			<section className="relative overflow-hidden px-8 py-16 text-center bg-gradient-to-br 
         from-amber-400 via-amber-500 to-amber-600 
         dark:from-indigo-500 dark:via-indigo-600 dark:to-indigo-700 text-white shadow-lg">
 
@@ -58,22 +59,10 @@ export default function HomePage() {
 					Discover concerts, workshops, meetups, and exclusive experiences.
 				</motion.p>
 
-				{/* Search Bar */}
-				<motion.div initial="hidden" animate="show" variants={fadeUp} transition={{ delay: 0.12 }} className="max-w-xl mx-auto flex gap-3 bg-white/90 dark:bg-gray-900/60 backdrop-blur-md
-          border border-white/20 dark:border-gray-700 p-4 rounded-xl shadow-xl">
-					<input
-						className="flex-1 bg-transparent outline-none text-gray-700 dark:text-gray-200"
-						placeholder="Search events…"
-					/>
-					<button className="px-6 py-2 rounded-lg bg-amber-500 dark:bg-indigo-500 text-white font-semibold hover:scale-105 transition">
-						Search
-					</button>
-				</motion.div>
-
 				<motion.div initial="hidden" animate="show" variants={fadeUp}>
 					<Link
 						href="/events"
-						className="inline-block mt-10 bg-white text-amber-600 dark:text-indigo-600 font-semibold px-8 py-4 
+						className="inline-block mt-2 bg-white text-amber-600 dark:text-indigo-600 font-semibold px-8 py-4 
            rounded-xl shadow-md hover:shadow-xl transition-all duration-200 hover:scale-105"
 					>
 						Browse All Events
@@ -93,10 +82,10 @@ export default function HomePage() {
 
 				<motion.div variants={cardStagger} className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
 					{[
-						{ label: "Music", icon: "🎵" },
-						{ label: "Workshops", icon: "🎨" },
-						{ label: "Sports", icon: "🏃" },
-						{ label: "Conferences", icon: "🎤" },
+						{ label: "Music", icon: <Music strokeWidth={3} size={32} className="mx-auto mb-4" /> },
+						{ label: "Workshops", icon: <Presentation strokeWidth={3} size={32} className="mx-auto mb-4" /> },
+						{ label: "Sports", icon: <Dumbbell strokeWidth={3} size={32} className="mx-auto mb-4" /> },
+						{ label: "Conferences", icon: <Mic strokeWidth={3} size={32} className="mx-auto mb-4" /> },
 					].map((cat) => (
 						<motion.div
 							key={cat.label}
@@ -115,9 +104,9 @@ export default function HomePage() {
 			<motion.section initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} className="px-8 py-16">
 				<motion.div variants={fadeUp} className="relative rounded-3xl overflow-hidden shadow-xl group">
 					<img
-						src="https://images.unsplash.com/photo-1506466010722-395aa2bef877"
+						src="https://www.visitphilly.com/wp-content/uploads/2025/09/concert-courtesy-the-fillmore-2200x1237px.jpg"
 						alt="Featured event crowd"
-						className="w-full h-72 object-cover group-hover:scale-105 transition duration-700"
+						className="w-full h-72 object-cover object-[50%_60%] group-hover:scale-105 transition duration-700"
 					/>
 					<div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-start px-10">
 						<h3 className="text-3xl font-bold text-white">Featured Event</h3>
@@ -145,7 +134,7 @@ export default function HomePage() {
 
 				{loading ? (
 					<div className="space-y-4">
-						<p className="text-gray-600 dark:text-gray-300">Loading events...</p>
+						<p className="text-gray-600 dark:text-gray-300">Loading events . . .</p>
 						<LinearProgress />
 					</div>
 				) : events.length === 0 ? (
@@ -228,7 +217,7 @@ export default function HomePage() {
 			<section className="px-8 py-20 text-center bg-gradient-to-r 
         from-amber-400 to-amber-500 dark:from-indigo-600 dark:to-indigo-700 text-white">
 				<h2 className="text-4xl font-extrabold">Ready to Book Your Next Experience?</h2>
-				<p className="mt-3 opacity-90">Browse events today and reserve your spot.</p>
+				<p className="text-lg mt-3 opacity-90">Browse events today and reserve your spot.</p>
 
 				<Link
 					href="/events"
