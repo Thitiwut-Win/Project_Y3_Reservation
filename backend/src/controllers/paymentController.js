@@ -36,7 +36,6 @@ async function fetchQR (token, userId, eventId, amount, uuid) {
   const ref2 = crypto.createHash("sha256").update(`${userId}:${eventId}:${process.env.HASH_SECRET}`).digest("hex").slice(0, 20).toUpperCase();
   const ref3 = `${process.env.REF_PREFIX}${random2}`;
 
-  console.log(ref1, ref2, ref3)
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/payment/qrcode/create", {
 		method: "POST",
 		headers: {
@@ -79,7 +78,6 @@ export const createPayment = async (req, res) => {
 		const token = tokenResponse.data.accessToken;
     const QRResponse = await fetchQR(token, userId, eventId, amount, uuid);
     if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
-    console.log(QRResponse)
 
     const payment = await Payment.create({
       userId: req.userId,
