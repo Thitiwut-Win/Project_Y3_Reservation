@@ -50,7 +50,7 @@ export default function RegisterPage() {
 						<input
 							type="text"
 							placeholder="Name"
-							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-50 text-black dark:text-white"
+							className="w-full border border-gray-950 dark:border-gray-300 p-2 mb-3 rounded-lg placeholder-gray-400 dark:placeholder-gray-500 text-black dark:text-white"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 						/>
