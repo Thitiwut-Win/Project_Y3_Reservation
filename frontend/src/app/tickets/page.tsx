@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios, { AxiosError } from "axios";
@@ -6,35 +7,63 @@ import { useRouter } from "next/navigation";
 import { Ticket } from "@/types/Ticket";
 import { toast } from "sonner";
 import { LinearProgress } from "@mui/material";
+import { motion } from "framer-motion";
+import ConfirmDialog from "@/components/ConfirmModal";
 
 export default function TicketsPage() {
 	const { data: session, status } = useSession();
 	const [tickets, setTickets] = useState<Ticket[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [ticketToCancel, setTicketToCancel] = useState<string>("");
 	const router = useRouter();
+
+	const containerVariants = {
+		hidden: { opacity: 0 },
+		show: {
+			opacity: 1,
+			transition: { staggerChildren: 0.12, delayChildren: 0.1 }
+		}
+	};
+
+	const cardVariants = {
+		hidden: { opacity: 0, y: 30 },
+		show: {
+			opacity: 1,
+			y: 0,
+			transition: { duration: 0.4, ease: "easeOut" }
+		}
+	} as const;
+
+	const fadeIn = {
+		hidden: { opacity: 0 },
+		show: { opacity: 1, transition: { duration: 0.4 } }
+	};
 
 	useEffect(() => {
 		if (status === "loading") return;
 
-		// if (status === "unauthenticated") {
-		// 	toast.warning("Please login first.");
-		// 	router.replace("/authen/login");
-		// 	return;
-		// }
+		if (status === "unauthenticated") {
+			router.replace("/authen/login");
+			toast.warning("Please login first.");
+			return;
+		}
 
 		const fetchTickets = async () => {
 			try {
 				const user = session?.user as { backendToken?: string };
 				const token = user?.backendToken;
+
 				if (!token) {
-					toast.warning("Please login first.");
 					router.replace("/authen/login");
+					toast.warning("Please login first.");
 					return;
 				}
 
-				const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/me`, {
-					headers: { Authorization: `Bearer ${token}` },
-				});
+				const res = await axios.get(
+					`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/me`,
+					{ headers: { Authorization: `Bearer ${token}` } }
+				);
 
 				setTickets(res.data.tickets);
 			} catch (err) {
@@ -47,77 +76,137 @@ export default function TicketsPage() {
 		fetchTickets();
 	}, [status, session, router]);
 
-	const handleCancel = async (ticketId: string) => {
-		if (!confirm("Are you sure you want to cancel this ticket?")) return;
+
+	const confirmCancel = (id: string) => {
+		setTicketToCancel(id);
+		setConfirmOpen(true);
+	};
+
+	const handleConfirmCancel = async () => {
+		if (!ticketToCancel) return;
 
 		try {
 			const token = (session?.user as { backendToken?: string })?.backendToken;
 			if (!token) {
-				toast.warning("You must be logged in to cancel a ticket.");
+				toast.warning("Please login first.");
 				return;
 			}
 
-			await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/${ticketId}`, {
+			await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/${ticketToCancel}`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
-			setTickets((prev) =>
-				prev.map((t) =>
-					t._id === ticketId ? { ...t, status: "cancelled" } : t
+			setTickets(prev =>
+				prev.map(t =>
+					t._id === ticketToCancel ? { ...t, status: "cancelled" } : t
 				)
 			);
 
-			toast.success("Ticket canceled successfully!");
-		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
-				const axiosErr = err as AxiosError<{ message?: string }>;
-				console.error(axiosErr.response?.data?.message || err.message);
-				toast.error(axiosErr.response?.data?.message || "Failed to cancel ticket.");
-			} else {
-				console.error(err);
-				toast.error("Unexpected error occurred.");
-			}
+			toast.success("Ticket cancelled!");
+		} catch (err) {
+			toast.error("Failed to cancel ticket.");
+		} finally {
+			setConfirmOpen(false);
 		}
 	};
 
-	if (loading) return
-	<div>
-		<p>Loading tickets . . .</p>
-		<LinearProgress />
-	</div>
+
+	if (loading)
+		return (
+			<main className="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
+				<p className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-200">
+					Loading tickets…
+				</p>
+				<LinearProgress />
+				<div className="mt-6 space-y-4">
+					{[1, 2, 3].map(i => (
+						<div
+							key={i}
+							className="w-full h-20 rounded-xl bg-gray-200 dark:bg-gray-700 animate-pulse"
+						/>
+					))}
+				</div>
+			</main>
+		);
 
 	return (
-		<main className="p-6 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
-			<h1 className="text-2xl font-bold mb-4">My Tickets</h1>
+		<motion.main
+			variants={fadeIn}
+			initial="hidden"
+			animate="show"
+			className="p-6 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen"
+		>
+			<h1 className="text-3xl font-bold mb-6">My Tickets</h1>
 
 			{tickets.length === 0 ? (
-				<p>No tickets reserved yet.</p>
+				<motion.div
+					variants={fadeIn}
+					initial="hidden"
+					animate="show"
+					className="text-center flex flex-col items-center mt-20"
+				>
+					<img
+						src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+						className="w-40 h-40 opacity-80"
+						alt="no tickets"
+					/>
+					<p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
+						You haven't reserved any tickets yet.
+					</p>
+				</motion.div>
 			) : (
-				<ul className="space-y-4">
-					{tickets.map((ticket) => (
-						<div
+				<motion.ul
+					variants={containerVariants}
+					initial="hidden"
+					animate="show"
+					className="space-y-4"
+				>
+					{tickets.map(ticket => (
+						<motion.div
 							key={ticket._id}
-							className="flex flex-row bg-white dark:bg-gray-800 p-4 rounded shadow w-full"
+							variants={cardVariants}
+							className="flex flex-row bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md hover:shadow-lg transition"
 						>
 							<li className="flex-grow">
-								<p><strong>{ticket.event.name}</strong></p>
-								<p>Date: {new Date(ticket.event.date).toLocaleString()}</p>
-								<p>Status: {ticket.status === "cancelled" ? "Cancelled" : "Active"}</p>
+								<p className="text-lg font-semibold">{ticket.event.name}</p>
+								<p className="text-gray-600 dark:text-gray-300">
+									Date: {new Date(ticket.event.date).toLocaleString()}
+								</p>
+								<p
+									className={`font-medium mt-1 ${ticket.status === "cancelled"
+										? "text-red-400"
+										: "text-green-500"
+										}`}
+								>
+									{ticket.status === "cancelled" ? "Cancelled" : "Active"}
+								</p>
 							</li>
-							<button
-								onClick={() => handleCancel(ticket._id)}
-								className={`h-10 m-auto p-2 rounded-lg ${ticket.status === "cancelled"
+
+							<motion.button
+								whileTap={{ scale: 0.92 }}
+								whileHover={{
+									scale: ticket.status === "cancelled" ? 1 : 1.05
+								}}
+								onClick={() => confirmCancel(ticket._id)}
+								className={`h-10 my-auto px-4 rounded-lg font-medium text-white ${ticket.status === "cancelled"
 									? "bg-gray-400 cursor-not-allowed"
 									: "bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600"
 									}`}
 								disabled={ticket.status === "cancelled"}
 							>
 								{ticket.status === "cancelled" ? "Cancelled" : "Cancel"}
-							</button>
-						</div>
+							</motion.button>
+						</motion.div>
 					))}
-				</ul>
+				</motion.ul>
 			)}
-		</main>
+			<ConfirmDialog
+				open={confirmOpen}
+				title="Cancel this ticket?"
+				description="You will lose your reservation. This action cannot be undone."
+				onConfirm={handleConfirmCancel}
+				onCancel={() => setConfirmOpen(false)}
+			/>
+		</motion.main>
 	);
 }
