@@ -73,7 +73,6 @@ export const createPayment = async (req, res) => {
     const uuid = uuidv4();
     const tokenResponse = await fetchAccessToken(uuid);
     if (!tokenResponse) return res.status(400).json({ message: "Error request access token" });
-    console.log(tokenResponse)
 
 		const token = tokenResponse.data.accessToken;
     const QRResponse = await fetchQR(token, userId, eventId, amount, uuid);
