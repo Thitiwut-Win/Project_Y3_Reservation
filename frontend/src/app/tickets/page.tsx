@@ -151,7 +151,7 @@ export default function TicketsPage() {
 						alt="no tickets"
 					/>
 					<p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
-						You haven't reserved any tickets yet.
+						{"You haven't reserved any tickets yet."}
 					</p>
 				</motion.div>
 			) : (
