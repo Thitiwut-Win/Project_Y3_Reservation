@@ -10,6 +10,17 @@ import { Dumbbell, Mic, Music, Presentation } from "lucide-react";
 export default function HomePage() {
 	const [events, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [loadingMessage, setLoadingMessage] = useState("Loading events . . .");
+
+	useEffect(() => {
+		if (loading) {
+			const timer = setTimeout(() => {
+				setLoadingMessage("Connecting to Render Server . . .");
+			}, 6000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [loading]);
 
 	useEffect(() => {
 		const fetchEvents = async () => {
@@ -134,7 +145,7 @@ export default function HomePage() {
 
 				{loading ? (
 					<div className="space-y-4">
-						<p className="text-gray-600 dark:text-gray-300">Loading events . . .</p>
+						<p className="text-gray-600 dark:text-gray-300">{loadingMessage}</p>
 						<LinearProgress />
 					</div>
 				) : events.length === 0 ? (

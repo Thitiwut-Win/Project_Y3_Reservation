@@ -14,6 +14,7 @@ export default function EventsPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [loadingMessage, setLoadingMessage] = useState("Loading events . . .");
 
   const categories = [
     { id: "all", name: "All", icon: Sparkles },
@@ -22,6 +23,16 @@ export default function EventsPage() {
     { id: "sports", name: "Sports", icon: Dumbbell },
     { id: "conference", name: "Conference", icon: Mic },
   ];
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoadingMessage("Connecting to Render Server . . .");
+      }, 6000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -111,7 +122,7 @@ export default function EventsPage() {
         <p className="text-red-500 text-center">{error}</p>
       ) : loading ? (
         <div className="max-w-xl mx-auto text-center space-y-4">
-          <p>Loading events . . .</p>
+          <p>{loadingMessage}</p>
           <LinearProgress />
         </div>
       ) : filtered.length === 0 ? (
