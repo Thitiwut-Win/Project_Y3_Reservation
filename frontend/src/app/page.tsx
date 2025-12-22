@@ -205,9 +205,9 @@ export default function HomePage() {
 							desc: "Choose your seats and secure your reservation instantly.",
 						},
 						{
-							title: "Get Confirmation",
+							title: "Payment",
 							icon: "📩",
-							desc: "Receive an email ticket and details right away.",
+							desc: "Pay for the tickets and reserve right away.",
 						},
 					].map((step) => (
 						<motion.div
