@@ -5,9 +5,3 @@ export const createPaymentSchema = Joi.object({
   amount: Joi.number().positive().required(),
   seats: Joi.number().positive().required(),
 });
-
-export const confirmPaymentSchema = Joi.object({
-  transactionId: Joi.string().required(),
-  status: Joi.string().valid("SUCCESS", "FAILED", "PENDING").required(),
-  paidAt: Joi.date().iso(),
-});

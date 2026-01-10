@@ -1,7 +1,7 @@
 import express from "express";
 import { authMiddleware } from "../middleware/auth.js";
-import { createPaymentSchema, confirmPaymentSchema } from "../validators/paymentSchema.js";
-import { confirmPayment, createPayment, emailConfirmation } from "../controllers/paymentController.js";
+import { createPaymentSchema } from "../validators/paymentSchema.js";
+import { confirmPayment, createPayment } from "../controllers/paymentController.js";
 import { validateBody } from "../middleware/validate.js";
 
 const router = express.Router();

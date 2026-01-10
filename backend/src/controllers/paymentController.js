@@ -27,16 +27,16 @@ async function fetchAccessToken (uuid) {
   return data;
 }
 
-async function fetchQR (token, userId, eventId, amount, uuid) {
+async function fetchQR (token, userId, eventId, amount, uuid, paymentId) {
 
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const random1 = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const generateRef3 = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 15);
-  const random2 = generateRef3();
+  // const generateRef3 = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 15);
+  // const random2 = generateRef3();
   
   const ref1 = `TXN${date}${random1}`;
   const ref2 = crypto.createHash("sha256").update(`${userId}:${eventId}:${process.env.HASH_SECRET}`).digest("hex").slice(0, 20).toUpperCase();
-  const ref3 = `${process.env.REF_PREFIX}${random2}`;
+  const ref3 = `${paymentId}`;
 
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/payment/qrcode/create", {
 		method: "POST",
@@ -76,10 +76,6 @@ export const createPayment = async (req, res) => {
     const tokenResponse = await fetchAccessToken(uuid);
     if (!tokenResponse) return res.status(400).json({ message: "Error request access token" });
 
-		const token = tokenResponse.data.accessToken;
-    const QRResponse = await fetchQR(token, userId, eventId, amount, uuid);
-    if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
-
     const payment = await Payment.create({
       userId: req.userId,
       eventId,
@@ -87,6 +83,10 @@ export const createPayment = async (req, res) => {
       seats,
       qrString: QRResponse.data.qrRawData,
     });
+
+		const token = tokenResponse.data.accessToken;
+    const QRResponse = await fetchQR(token, userId, eventId, amount, uuid, payment.id);
+    if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
 
     const qrImage = await qrcode.toDataURL(QRResponse.data.qrRawData);
 
@@ -104,25 +104,16 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
-    console.log(req);
+    const paymentId = req.billPaymentRef3;
+    const payment = await Payment.findById(paymentId);
+    if (!payment) {
+      return;
+    }
 
-    res.json({ 
-      "resCode": "00",
-      "resDesc ": "success",
-      "transactionId": "xxx"
-    });
-  } catch (err) {
-    console.error("Payment confirm error:", err);
-    res.status(500).json({ message: "Failed to confirm payment" });
-  }
-};
-
-export const emailConfirmation = async (req, res) => {
-  try {
-    const userId = req.userId;
+    const userId = payment.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return;
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -133,8 +124,13 @@ export const emailConfirmation = async (req, res) => {
       html: "<strong>it works!</strong>",
     });
 
+    res.json({ 
+      "resCode": "00",
+      "resDesc ": "success",
+      "transactionId": req.transactionId
+    });
   } catch (err) {
-    console.error("Email error:", err);
-    res.status(500).json({ message: "Failed to email" });
+    console.error("Payment confirm error:", err);
+    res.status(500).json({ message: "Failed to confirm payment" });
   }
-}
+};

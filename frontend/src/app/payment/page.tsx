@@ -202,7 +202,7 @@ export default function PaymentPage() {
 							className="mx-auto my-4 w-56 h-56 rounded-lg shadow-md"
 						/>
 
-						<p className="text-md text-gray-600 dark:text-gray-400 mt-6 mb-4">
+						<p className="text-md text-gray-500 dark:text-gray-400 mt-6 mb-4">
 							Scan with SCB EasySandbox only.
 						</p>
 
@@ -216,6 +216,9 @@ export default function PaymentPage() {
 						>
 							{reserving ? "Reserving..." : "Complete Reservation"}
 						</button>
+						<p className="text-md text-gray-500 dark:text-gray-400 mt-4 mb-6">
+							Wait for confirmation. If you do not have the app, you can press complete.
+						</p>
 					</motion.div>
 				)}
 			</motion.div>
