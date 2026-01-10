@@ -1,9 +1,11 @@
 import Payment from "../models/Payment.js";
-// import Event from "../models/Event.js";
+import Event from "../models/Event.js";
 import qrcode from "qrcode";
 import { v4 as uuidv4 } from 'uuid';
 import crypto from "crypto";
 import {customAlphabet} from "nanoid"
+import { Resend } from "resend";
+import User from "../models/User.js";
 
 async function fetchAccessToken (uuid) {
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/oauth/token", {
@@ -102,40 +104,37 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
-    const { transactionId, status, paidAt } = req.body;
+    console.log(req);
 
-    const payment = await Payment.findById(transactionId);
-    if (!payment) {
-      return res.status(404).json({ message: "Payment not found" });
-    }
-
-    if (status === "SUCCESS") {
-      payment.status = "paid";
-
-      const event = await Event.findById(payment.eventId);
-      if (event) {
-        event.availableSeats -= payment.seats;
-        await event.save();
-      }
-
-      for (let i = 0; i < payment.seats; i++) {
-        await Ticket.create({
-          userId: payment.userId,
-          eventId: payment.eventId,
-          paymentId: payment._id,
-          status: "reserved",
-        });
-      }
-    } else if (status === "FAILED") {
-      payment.status = "failed";
-    }
-
-    payment.paidAt = paidAt ? new Date(paidAt) : new Date();
-    await payment.save();
-
-    res.json({ success: true });
+    res.json({ 
+      "resCode": "00",
+      "resDesc ": "success",
+      "transactionId": "xxx"
+    });
   } catch (err) {
     console.error("Payment confirm error:", err);
     res.status(500).json({ message: "Failed to confirm payment" });
   }
 };
+
+export const emailConfirmation = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { data, error } = await resend.emails.send({
+      from: "Event Reservation <noreply@resend.dev>",
+      to: user.email,
+      subject: "Ticket reservation confirmation",
+      html: "<strong>it works!</strong>",
+    });
+
+  } catch (err) {
+    console.error("Email error:", err);
+    res.status(500).json({ message: "Failed to email" });
+  }
+}
