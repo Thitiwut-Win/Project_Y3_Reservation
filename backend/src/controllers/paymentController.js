@@ -88,7 +88,7 @@ export const createPayment = async (req, res) => {
     const QRResponse = await fetchQR(token, userId, eventId, amount, uuid, payment.id);
     if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
 
-    payment.qrString = QRResponse.qrRawData.data;
+    payment.qrString = QRResponse.data.qrRawData;
     payment.status = "qr_generated";
     await payment.save();
 
