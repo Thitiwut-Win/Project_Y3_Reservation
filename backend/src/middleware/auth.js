@@ -7,7 +7,6 @@ export const authMiddleware = (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized" });
 
     const token = authHeader.split(" ")[1];
-    console.log(token)
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = payload.id;
     next();
