@@ -15,7 +15,8 @@ export const registerUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET || "devsecret"
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
     res.json({
@@ -39,13 +40,35 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET || "devsecret"
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
     res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email },
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+export const googleSignIn = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { email },
+      { email, name },
+      { upsert: true, new: true }
+    );
+
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({ token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

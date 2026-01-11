@@ -46,8 +46,26 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user?.token) token.backendToken = user.token;
+    async jwt({ token, user, account }) {
+      if (user?.token) {
+        token.backendToken = user.token;
+        return token;
+      }
+
+      if (account?.provider === "google" && user?.email) {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: user.email,
+            name: user.name,
+          }),
+        });
+
+        const data = await res.json();
+        token.backendToken = data.token;
+      }
+
       return token;
     },
     async session({ session, token }) {
