@@ -5,9 +5,8 @@ const paymentSchema = new mongoose.Schema({
   eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
   amount: { type: Number, required: true },
   seats: { type: Number, required: true },
-  qrString: { type: String, required: true },
-  status: { type: String, enum: ["pending", "paid", "failed"], default: "pending" },
-  createdAt: { type: Date, default: Date.now },
-});
+  qrString: { type: String, default: null},
+  status: { type: String, enum: ["pending", "qr_generated", "paid", "failed", "expired"], default: "pending" },
+}, { timestamps: true });
 
 export default mongoose.model("Payment", paymentSchema);

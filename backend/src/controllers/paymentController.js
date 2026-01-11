@@ -81,6 +81,7 @@ export const createPayment = async (req, res) => {
       eventId,
       amount,
       seats,
+      status: "pending",
     });
 
 		const token = tokenResponse.data.accessToken;
@@ -88,6 +89,7 @@ export const createPayment = async (req, res) => {
     if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
 
     payment.qrString = QRResponse.qrRawData.data;
+    payment.status = "qr_generated";
     await payment.save();
 
     const qrImage = await qrcode.toDataURL(QRResponse.data.qrRawData);
