@@ -1,11 +1,11 @@
 import Payment from "../models/Payment.js";
-import Event from "../models/Event.js";
 import qrcode from "qrcode";
 import { v4 as uuidv4 } from 'uuid';
 import crypto from "crypto";
 import {customAlphabet} from "nanoid"
 import { Resend } from "resend";
 import User from "../models/User.js";
+import base32 from "hi-base32";
 
 async function fetchAccessToken (uuid) {
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/oauth/token", {
@@ -36,7 +36,8 @@ async function fetchQR (token, userId, eventId, amount, uuid, paymentId) {
   
   const ref1 = `TXN${date}${random1}`;
   const ref2 = crypto.createHash("sha256").update(`${userId}:${eventId}:${process.env.HASH_SECRET}`).digest("hex").slice(0, 20).toUpperCase();
-  const ref3 = Buffer.from(paymentId.toString(), "hex").toString("base64url");
+  const buffer = Buffer.from(paymentId.toString(), "hex");
+  const ref3 = base32.encode(buffer).replace(/=+$/, "");
 
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/payment/qrcode/create", {
 		method: "POST",
@@ -109,7 +110,7 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
-    const hex = Buffer.from(req.billPaymentRef3, "base64url").toString("hex");
+    const hex = Buffer.from(base32.decode.asBytes(str)).toString("hex");
     const paymentId = new mongoose.Types.ObjectId(hex);
     const payment = await Payment.findById(paymentId);
     if (!payment) {
