@@ -33,7 +33,7 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) return res.status(400).json({ message: "Cannot find user" });
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ message: "Invalid credentials" });
@@ -56,8 +56,10 @@ export const loginUser = async (req, res) => {
 
 export const googleSignIn = async (req, res) => {
   try {
+    const { email, name } = req.body;
+    if (!user || !name) return res.status(400).json({ message: "Invalid credentials" });
+
     const user = await User.findOneAndUpdate(
-      { email },
       { email, name },
       { upsert: true, new: true }
     );
