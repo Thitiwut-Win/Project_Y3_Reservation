@@ -36,7 +36,7 @@ async function fetchQR (token, userId, eventId, amount, uuid, paymentId) {
   
   const ref1 = `TXN${date}${random1}`;
   const ref2 = crypto.createHash("sha256").update(`${userId}:${eventId}:${process.env.HASH_SECRET}`).digest("hex").slice(0, 20).toUpperCase();
-  const ref3 = `${paymentId}`;
+  const ref3 = Buffer.from(paymentId.toString(), "hex").toString("base64url");
 
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/payment/qrcode/create", {
 		method: "POST",
@@ -109,7 +109,8 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
-    const paymentId = req.billPaymentRef3;
+    const hex = Buffer.from(req.billPaymentRef3, "base64url").toString("hex");
+    const paymentId = new mongoose.Types.ObjectId(hex);
     const payment = await Payment.findById(paymentId);
     if (!payment) {
       return;
