@@ -76,6 +76,10 @@ export const createPayment = async (req, res) => {
     const tokenResponse = await fetchAccessToken(uuid);
     if (!tokenResponse) return res.status(400).json({ message: "Error request access token" });
 
+		const token = tokenResponse.data.accessToken;
+    const QRResponse = await fetchQR(token, userId, eventId, amount, uuid, payment.id);
+    if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
+
     const payment = await Payment.create({
       userId: req.userId,
       eventId,
@@ -83,10 +87,6 @@ export const createPayment = async (req, res) => {
       seats,
       qrString: QRResponse.data.qrRawData,
     });
-
-		const token = tokenResponse.data.accessToken;
-    const QRResponse = await fetchQR(token, userId, eventId, amount, uuid, payment.id);
-    if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
 
     const qrImage = await qrcode.toDataURL(QRResponse.data.qrRawData);
 
