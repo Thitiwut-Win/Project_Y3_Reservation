@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
 export const googleSignIn = async (req, res) => {
   try {
     const { email, name } = req.body;
-    if (!user || !name) return res.status(400).json({ message: "Invalid credentials" });
+    if (!email || !name) return res.status(400).json({ message: "Invalid credentials" });
 
     const user = await User.findOneAndUpdate(
       { email, name },
@@ -70,7 +70,10 @@ export const googleSignIn = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
