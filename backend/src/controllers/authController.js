@@ -60,6 +60,7 @@ export const googleSignIn = async (req, res) => {
     if (!email || !name) return res.status(400).json({ message: "Invalid credentials" });
 
     const user = await User.findOneAndUpdate(
+      { email },
       { email, name },
       { upsert: true, new: true }
     );
