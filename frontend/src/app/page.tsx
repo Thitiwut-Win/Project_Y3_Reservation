@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Event } from "@/types/Event";
 import { LinearProgress } from "@mui/material";
 import { motion } from "framer-motion";

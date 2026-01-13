@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { Ticket } from "@/types/Ticket";
 import { toast } from "sonner";

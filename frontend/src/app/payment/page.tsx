@@ -8,7 +8,6 @@ import { getEvent } from "@/services/eventService";
 import { createPayment } from "@/services/paymentService";
 import { reserveTickets } from "@/services/ticketService";
 import { Event as EventType } from "@/types/Event";
-import axios, { AxiosError } from "axios";
 import { useSession } from "next-auth/react";
 
 export default function PaymentPage() {
@@ -117,12 +116,7 @@ export default function PaymentPage() {
 				router.push("/tickets");
 			}
 		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
-				const axiosErr = err as AxiosError<{ message?: string }>;
-				toast.error(axiosErr.response?.data?.message || "Reservation failed.");
-			} else {
-				toast.error("Reservation failed.");
-			}
+			toast.error("Reservation failed.");
 		} finally {
 			setReserving(false);
 		}
