@@ -10,6 +10,7 @@ const router = express.Router();
 router.post("/create", authMiddleware, validateBody(createPaymentSchema), createPayment);
 
 // confirm
+// SCB callback
 router.post("/confirm", confirmPayment);
 
 export default router;

@@ -9,13 +9,15 @@ import { toast } from "sonner";
 import { LinearProgress } from "@mui/material";
 import { motion } from "framer-motion";
 import ConfirmDialog from "@/components/ConfirmModal";
+import { cancelTicket, getMyTickets } from "@/services/ticketService";
 
 export default function TicketsPage() {
-	const { data: session, status } = useSession();
+	const { status } = useSession();
 	const [tickets, setTickets] = useState<Ticket[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const [ticketToCancel, setTicketToCancel] = useState<string>("");
+
 	const router = useRouter();
 
 	const containerVariants = {
@@ -42,7 +44,6 @@ export default function TicketsPage() {
 
 	useEffect(() => {
 		if (status === "loading") return;
-
 		if (status === "unauthenticated") {
 			router.replace("/authen/login");
 			toast.warning("Please login first.");
@@ -51,30 +52,17 @@ export default function TicketsPage() {
 
 		const fetchTickets = async () => {
 			try {
-				const user = session?.user as { backendToken?: string };
-				const token = user?.backendToken;
-
-				if (!token) {
-					router.replace("/authen/login");
-					toast.warning("Please login first.");
-					return;
-				}
-
-				const res = await axios.get(
-					`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/me`,
-					{ headers: { Authorization: `Bearer ${token}` } }
-				);
-
-				setTickets(res.data.tickets);
-			} catch (err) {
-				console.error("Error fetching tickets:", err);
+				const data = await getMyTickets();
+				setTickets(data.tickets);
+			} catch {
+				toast.error("Failed to load tickets.");
 			} finally {
 				setLoading(false);
 			}
 		};
 
 		fetchTickets();
-	}, [status, session, router]);
+	}, [status, router]);
 
 
 	const confirmCancel = (id: string) => {
@@ -86,22 +74,8 @@ export default function TicketsPage() {
 		if (!ticketToCancel) return;
 
 		try {
-			const token = (session?.user as { backendToken?: string })?.backendToken;
-			if (!token) {
-				toast.warning("Please login first.");
-				return;
-			}
-
-			await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/tickets/${ticketToCancel}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-
-			setTickets(prev =>
-				prev.map(t =>
-					t._id === ticketToCancel ? { ...t, status: "cancelled" } : t
-				)
-			);
-
+			const data = await cancelTicket(ticketToCancel)
+			router.refresh();
 			toast.success("Ticket cancelled!");
 		} catch (err) {
 			toast.error("Failed to cancel ticket.");

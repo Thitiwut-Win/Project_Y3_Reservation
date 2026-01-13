@@ -6,6 +6,7 @@ import { createEvent, getAllEvents, getEventById } from "../controllers/eventCon
 
 const router = Router();
 
+// Public: get all events
 router.get("/", getAllEvents);
 
 // Public: get one event by ID

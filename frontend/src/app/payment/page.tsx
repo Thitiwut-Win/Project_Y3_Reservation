@@ -9,8 +9,10 @@ import { createPayment } from "@/services/paymentService";
 import { reserveTickets } from "@/services/ticketService";
 import { Event as EventType } from "@/types/Event";
 import axios, { AxiosError } from "axios";
+import { useSession } from "next-auth/react";
 
 export default function PaymentPage() {
+	const { data: session, status } = useSession();
 	const router = useRouter();
 
 	const [event, setEvent] = useState<EventType | null>(null);
@@ -21,6 +23,15 @@ export default function PaymentPage() {
 	const [generatingQR, setGeneratingQR] = useState(false);
 	const [eventId, setEventId] = useState<string>("");
 	const [seats, setSeats] = useState<number>(1);
+
+	useEffect(() => {
+		if (status === "loading") return;
+		if (status === "authenticated") {
+			router.replace("/authen/login");
+			toast.warning("Please login first.");
+			return;
+		}
+	}, [status, router]);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -62,16 +73,10 @@ export default function PaymentPage() {
 	}, [eventId, seats]);
 
 	const handleGeneratePayment = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			toast.warning("Please log in first.");
-			return;
-		}
-
 		setGeneratingQR(true);
 
 		try {
-			const data = await createPayment(eventId, amount, seats, token);
+			const data = await createPayment(eventId, amount, seats);
 			setQrImage(data.qrImage);
 			toast.success("Payment QR generated! Scan it via SCB EasySandbox.");
 		} catch (err) {
@@ -84,12 +89,6 @@ export default function PaymentPage() {
 
 	const handleReserve = async () => {
 		if (!event) return;
-
-		const token = localStorage.getItem("token");
-		if (!token) {
-			toast.warning("You must be logged in to reserve tickets.");
-			return;
-		}
 
 		if (seats < 1) {
 			toast.warning("Please select at least one seat.");

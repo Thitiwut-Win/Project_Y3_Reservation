@@ -1,3 +1,4 @@
+import apiClient from "@/utils/apiClient";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -13,26 +14,15 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-          }),
+        const res = await apiClient.post(`/api/auth/login`, {
+          email: credentials.email,
+          password: credentials.password,
         });
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Invalid credentials");
-        }
-
         return {
-          id: data.user.id,
-          name: data.user.name,
-          email: data.user.email,
-          token: data.token,
+          id: res.data.user.id,
+          name: res.data.user.name,
+          email: res.data.user.email,
         };
       },
     }),
@@ -53,23 +43,15 @@ const handler = NextAuth({
       }
 
       if (account?.provider === "google" && user?.email) {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: user.email,
-            name: user.name,
-          }),
+        const res = await apiClient.post(`/api/auth/google`, {
+          email: user.email,
+          name: user.name,
         });
-
-        const data = await res.json();
-        token.backendToken = data.token;
       }
 
       return token;
     },
-    async session({ session, token }) {
-      session.user = { ...session.user, backendToken: token.backendToken };
+    async session({ session }) {
       return session;
     },
   },

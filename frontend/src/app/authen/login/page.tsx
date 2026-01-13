@@ -12,7 +12,7 @@ export default function LoginPage() {
 
 	useEffect(() => {
 		if (status === "authenticated") {
-			router.push("/events");
+			router.push("/");
 		}
 	}, [status, router]);
 

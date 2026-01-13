@@ -3,7 +3,6 @@ import Event from "../models/Event.js";
 export const getAllEvents = async (req, res) => {
   const events = await Event.find().sort({ dateTime: 1 });
   res.json(events);
-  // res.json([{ id: 1, name: "Test Event" }]);
 }
 export const getEventById = async (req, res) => {
   const event = await Event.findById(req.params.id);

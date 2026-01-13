@@ -1,5 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
+import helmet from "helmet"
+import hpp from "hpp"
+import rateLimit from "express-rate-limit"
+import cookieParser from "cookie-parser"
 import cors from "cors";
 import { logger } from "./middleware/logger.js";
 
@@ -19,9 +23,31 @@ mongoose
 
 const app = express();
 
+app.use(helmet());
+app.use(hpp());
+
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
+  message: {
+    success: false,
+    error: "Too many requests from this IP, please try again later."
+  }
+});
+app.use(limiter);
+
+app.use(cookieParser());
+
+const allowedOrigins = [process.env.NEXTAUTH_URL, ];
 app.use(cors({
-  origin: [`${process.env.NEXTAUTH_URL}`],
-  credentials: true,
+  origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  credentials: true
 }));
 app.use(express.json());
 app.use(logger);

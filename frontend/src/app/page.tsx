@@ -226,15 +226,15 @@ export default function HomePage() {
 			{/* Banner */}
 			<section className="px-8 py-20 text-center bg-gradient-to-r 
         from-amber-400 to-amber-500 dark:from-indigo-600 dark:to-indigo-700 text-white">
-				<h2 className="text-4xl font-extrabold">Ready to Book Your Next Experience?</h2>
-				<p className="text-lg mt-3 opacity-90">Browse events today and reserve your spot.</p>
+				<h2 className="text-4xl font-extrabold">Want to partner with us?</h2>
+				<p className="text-lg mt-3 opacity-90">Submit your information and we will be in contact.</p>
 
 				<Link
-					href="/events"
+					href="/events?submit=true"
 					className="mt-6 inline-block px-10 py-4 bg-white text-amber-600 dark:text-indigo-600 
           font-semibold rounded-xl shadow-md hover:scale-105 transition"
 				>
-					Get Started
+					Submit Now
 				</Link>
 			</section>
 		</main>

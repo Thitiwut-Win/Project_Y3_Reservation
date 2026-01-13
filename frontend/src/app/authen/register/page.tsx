@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { LinearProgress } from "@mui/material";
+import apiClient from "@/utils/apiClient";
 
 export default function RegisterPage() {
 	const [name, setName] = useState("");
@@ -15,13 +16,13 @@ export default function RegisterPage() {
 
 	useEffect(() => {
 		if (status === "authenticated") {
-			router.push("/events");
+			router.push("/");
 		}
 	}, [status, router]);
 
 	const handleRegister = async () => {
 		try {
-			const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, { name, email, password });
+			const res = await apiClient.post("/api/auth/register", { name, email, password });
 			window.dispatchEvent(new Event("auth-change"));
 			alert("Registration successful!");
 			router.push("/authen/login");

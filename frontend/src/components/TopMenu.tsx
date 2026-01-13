@@ -2,10 +2,22 @@
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import { signOut, useSession } from "next-auth/react";
+import apiClient from "@/utils/apiClient";
 
 export default function TopMenu() {
 	const { data: session } = useSession();
 	const isLoggedIn = !!session;
+
+	const handleLogout = async () => {
+		try {
+			await apiClient.post("/api/auth/logout");
+		} catch {
+			console.log("Error logging out")
+		} finally {
+			await signOut({ callbackUrl: "/" });
+		}
+	};
+
 	return (
 		<div className="flex items-center justify-between px-8 py-4 shadow bg-white dark:bg-gray-800">
 			<h1 className="text-xl font-bold text-yellow-600 dark:text-blue-400">
@@ -24,7 +36,7 @@ export default function TopMenu() {
 
 				{isLoggedIn ? (
 					<button
-						onClick={() => signOut({ callbackUrl: "/" })}
+						onClick={handleLogout}
 						className="hover:underline text-red-600 dark:text-red-400"
 					>
 						Logout
