@@ -4,8 +4,10 @@ import axios from "axios";
 import Link from "next/link";
 import { Event } from "@/types/Event";
 import { LinearProgress } from "@mui/material";
-import { motion } from "framer-motion";
 import { Search, Music, Dumbbell, Sparkles, Presentation, Mic } from "lucide-react";
+import EventSubmitModal from "@/components/EventSubmitModal";
+import { useSearchParams } from "next/navigation";
+import { getAllEvents } from "@/services/eventService";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -15,6 +17,7 @@ export default function EventsPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [loadingMessage, setLoadingMessage] = useState("Loading events . . .");
+  const [open, setOpen] = useState(false);
 
   const categories = [
     { id: "all", name: "All", icon: Sparkles },
@@ -23,6 +26,13 @@ export default function EventsPage() {
     { id: "sports", name: "Sports", icon: Dumbbell },
     { id: "conference", name: "Conference", icon: Mic },
   ];
+
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("submit") === "true") {
+      setOpen(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (loading) {
@@ -37,11 +47,9 @@ export default function EventsPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/events`
-        );
-        setEvents(res.data);
-        setFiltered(res.data);
+        const data = await getAllEvents();
+        setEvents(data);
+        setFiltered(data);
       } catch (err) {
         setError("Failed to load events.");
       } finally {
@@ -170,6 +178,14 @@ export default function EventsPage() {
           ))}
         </div>
       )}
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-6 right-6 px-6 py-4 rounded-xl bg-yellow-500 dark:bg-blue-600 text-white font-semibold shadow-lg hover:shadow-2xl
+        hover:bg-amber-500 dark:hover:bg-indigo-500 hover:scale-105 transition-all"
+      >
+        + Submit Event
+      </button>
+      <EventSubmitModal open={open} onClose={() => setOpen(false)} />
     </main>
   );
 }

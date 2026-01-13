@@ -6,6 +6,7 @@ import { Event } from "@/types/Event";
 import { LinearProgress } from "@mui/material";
 import { motion } from "framer-motion";
 import { Dumbbell, Mic, Music, Presentation } from "lucide-react";
+import { getAllEvents } from "@/services/eventService";
 
 export default function HomePage() {
 	const [events, setEvents] = useState<Event[]>([]);
@@ -25,8 +26,8 @@ export default function HomePage() {
 	useEffect(() => {
 		const fetchEvents = async () => {
 			try {
-				const res = await axios.get<Event[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/events`);
-				setEvents(res.data);
+				const data = await getAllEvents();
+				setEvents(data);
 			} catch (err) {
 				console.error("Error fetching events:", err);
 			} finally {
@@ -80,6 +81,57 @@ export default function HomePage() {
 					</Link>
 				</motion.div>
 			</section>
+
+			{/* How It Works */}
+			<motion.section
+				initial="hidden"
+				whileInView="show"
+				viewport={{ once: true, amount: 0.18 }}
+				variants={cardStagger}
+				className="px-8 py-20 bg-gray-100 dark:bg-gray-900"
+			>
+				<motion.h2 variants={fadeUp} className="text-3xl font-bold text-center mb-12">How It Works</motion.h2>
+
+				<motion.div variants={cardStagger} className="grid md:grid-cols-5 gap-8 max-w-8xl mx-auto">
+					{[
+						{
+							title: "Browse Events",
+							icon: "🔍",
+							desc: "Search thousands of events happening around you.",
+						},
+						{
+							title: "Reserve Seats",
+							icon: "🪑",
+							desc: "Choose your seats and secure your reservation instantly.",
+						},
+						{
+							title: "Login",
+							icon: "➜]",
+							desc: "Register/Login with your email or google account.",
+						},
+						{
+							title: "Payment",
+							icon: "📩",
+							desc: "Pay for the tickets and receive email confirmation.",
+						},
+						{
+							title: "Secure",
+							icon: "🛡️",
+							desc: "Complete transaction with httpOnly cookies and SCB api.",
+						},
+					].map((step) => (
+						<motion.div
+							key={step.title}
+							variants={fadeUp}
+							className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition"
+						>
+							<div className="text-5xl">{step.icon}</div>
+							<h4 className="text-xl font-bold mt-4">{step.title}</h4>
+							<p className="text-gray-600 dark:text-gray-300 mt-2">{step.desc}</p>
+						</motion.div>
+					))}
+				</motion.div>
+			</motion.section>
 
 			{/* Categories */}
 			<motion.section
@@ -180,47 +232,6 @@ export default function HomePage() {
 						))}
 					</motion.ul>
 				)}
-			</motion.section>
-
-			{/* How It Works */}
-			<motion.section
-				initial="hidden"
-				whileInView="show"
-				viewport={{ once: true, amount: 0.18 }}
-				variants={cardStagger}
-				className="px-8 py-20 bg-gray-100 dark:bg-gray-900"
-			>
-				<motion.h2 variants={fadeUp} className="text-3xl font-bold text-center mb-12">How It Works</motion.h2>
-
-				<motion.div variants={cardStagger} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-					{[
-						{
-							title: "Browse Events",
-							icon: "🔍",
-							desc: "Search thousands of events happening around you.",
-						},
-						{
-							title: "Reserve Seats",
-							icon: "🪑",
-							desc: "Choose your seats and secure your reservation instantly.",
-						},
-						{
-							title: "Payment",
-							icon: "📩",
-							desc: "Pay for the tickets and reserve right away.",
-						},
-					].map((step) => (
-						<motion.div
-							key={step.title}
-							variants={fadeUp}
-							className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition"
-						>
-							<div className="text-5xl">{step.icon}</div>
-							<h4 className="text-xl font-bold mt-4">{step.title}</h4>
-							<p className="text-gray-600 dark:text-gray-300 mt-2">{step.desc}</p>
-						</motion.div>
-					))}
-				</motion.div>
 			</motion.section>
 
 			{/* Banner */}

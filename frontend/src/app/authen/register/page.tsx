@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { LinearProgress } from "@mui/material";
 import apiClient from "@/utils/apiClient";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
 	const [name, setName] = useState("");
@@ -24,7 +25,7 @@ export default function RegisterPage() {
 		try {
 			const res = await apiClient.post("/api/auth/register", { name, email, password });
 			window.dispatchEvent(new Event("auth-change"));
-			alert("Registration successful!");
+			toast.success("Registration successful!");
 			router.push("/authen/login");
 		} catch (err: unknown) {
 			if (axios.isAxiosError(err)) {
