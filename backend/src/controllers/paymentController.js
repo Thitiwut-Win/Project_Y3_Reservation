@@ -116,6 +116,9 @@ export const confirmPayment = async (req, res) => {
     if (!payment) {
       return;
     }
+    
+    payment.status = "paid";
+    await payment.save();
 
     const userId = payment.userId;
     const user = await User.findById(userId);
