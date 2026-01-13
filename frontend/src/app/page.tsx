@@ -111,7 +111,7 @@ export default function HomePage() {
 						{
 							title: "Payment",
 							icon: "📩",
-							desc: "Pay for the tickets and receive email confirmation.",
+							desc: "Pay for the tickets and reserve right away.",
 						},
 						{
 							title: "Secure",
