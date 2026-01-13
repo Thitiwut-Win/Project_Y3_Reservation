@@ -16,12 +16,8 @@ export const registerUser = async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hash });
 
-    const token = signToken(user._id);
-    sendAuthCookie(res, token);
+    sendAuthCookie(res, 200, user);
 
-    res.status(201).json({
-      user: { id: user._id, name: user.name, email: user.email },
-    });
   } catch {
     res.status(500).json({ message: "Server error" });
   }
@@ -37,12 +33,8 @@ export const loginUser = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = signToken(user._id);
-    sendAuthCookie(res, token);
+    sendAuthCookie(res, 200, user);
 
-    res.json({
-      user: { id: user._id, name: user.name, email: user.email },
-    });
   } catch {
     res.status(500).json({ message: "Server error" });
   }
@@ -60,12 +52,8 @@ export const googleSignIn = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    const token = signToken(user._id);
-    sendAuthCookie(res, token);
+    sendAuthCookie(res, 200, user);
 
-    res.json({
-      user: { id: user._id, name: user.name, email: user.email },
-    });
   } catch {
     res.status(500).json({ message: "Server error" });
   }
@@ -81,11 +69,19 @@ export const logoutUser = (req, res) => {
   res.status(200).json({ success: true, message: "Logged out" });
 };
 
-const sendAuthCookie = (res, token) => {
-  res.cookie("token", token, {
+const sendAuthCookie = (res, statusCode, user) => {
+  const token = signToken(user._id);
+  const options = {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  };
+  res.status(statusCode).cookie("token", token, options).json({
+    success: true,
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    token
   });
 };

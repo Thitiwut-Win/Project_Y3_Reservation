@@ -12,7 +12,7 @@ import axios, { AxiosError } from "axios";
 import { useSession } from "next-auth/react";
 
 export default function PaymentPage() {
-	const { data: session, status } = useSession();
+	const { data: session } = useSession();
 	const router = useRouter();
 
 	const [event, setEvent] = useState<EventType | null>(null);
@@ -25,13 +25,12 @@ export default function PaymentPage() {
 	const [seats, setSeats] = useState<number>(1);
 
 	useEffect(() => {
-		if (status === "loading") return;
-		if (status === "authenticated") {
+		if (!session?.user?.token) {
 			router.replace("/authen/login");
 			toast.warning("Please login first.");
 			return;
 		}
-	}, [status, router]);
+	}, [session, router]);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -76,7 +75,12 @@ export default function PaymentPage() {
 		setGeneratingQR(true);
 
 		try {
-			const data = await createPayment(eventId, amount, seats);
+			if (!session?.user?.token) {
+				router.replace("/authen/login");
+				toast.warning("Please login first.");
+				return;
+			}
+			const data = await createPayment(eventId, amount, seats, session?.user?.token);
 			setQrImage(data.qrImage);
 			toast.success("Payment QR generated! Scan it via SCB EasySandbox.");
 		} catch (err) {
@@ -98,7 +102,12 @@ export default function PaymentPage() {
 		setReserving(true);
 
 		try {
-			const res = (await reserveTickets(event._id, seats)) as {
+			if (!session?.user?.token) {
+				router.replace("/authen/login");
+				toast.warning("Please login first.");
+				return;
+			}
+			const res = (await reserveTickets(event._id, seats, session.user.token)) as {
 				success: boolean;
 				tickets: { _id: string; status: string }[];
 			};

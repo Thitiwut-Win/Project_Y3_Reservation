@@ -2,24 +2,33 @@ import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
   try {
-    console.log(req.cookies)
-    const token = req.cookies?.token;
-    console.log(token)
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = payload.id;
-
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token || token === "null") {
+    return res
+      .status(401)
+      .json({ success: false, message: "Not authorize to access this route" });
+  }
     next();
-  } catch {
-    res.clearCookie("token", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-
-    return res.status(401).json({ message: "Invalid or expired token" });
+  } catch (err) {
+    console.log(err.stack);
+    return res
+      .status(401)
+      .json({ success: false, message: "Not authorize to access this route" });
   }
 };
+
+export const authorize = (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `User role ${req.user.role} is not authorized to access this route`,
+      });
+    }
+    next();
+}

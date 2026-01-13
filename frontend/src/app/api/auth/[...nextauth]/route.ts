@@ -20,9 +20,10 @@ const handler = NextAuth({
         });
 
         return {
-          id: res.data.user.id,
-          name: res.data.user.name,
-          email: res.data.user.email,
+          id: res.data._id,
+          name: res.data.name,
+          email: res.data.email,
+          token: res.data.token,
         };
       },
     }),
@@ -37,11 +38,6 @@ const handler = NextAuth({
   },
   callbacks: {
     async jwt({ token, user, account }) {
-      if (user?.token) {
-        token.backendToken = user.token;
-        return token;
-      }
-
       if (account?.provider === "google" && user?.email) {
         const res = await apiClient.post(`/api/auth/google`, {
           email: user.email,
@@ -49,9 +45,29 @@ const handler = NextAuth({
         });
       }
 
+      if (user) {
+        const u = user as Partial<{ _id: string; name: string; email: string; role: string; token: string }>;
+        token = {
+          ...token,
+          _id: u._id ?? "",
+          name: u.name ?? "",
+          email: u.email ?? "",
+          role: u.role ?? "user",
+          token: u.token ?? "",
+        };
+      }
+      return token;
+
       return token;
     },
-    async session({ session }) {
+    async session({ session, token }) {
+      session.user = {
+        _id: token._id as string,
+        name: token.name as string,
+        email: token.email as string,
+        role: token.role as string,
+        token: token.token as string,
+      };
       return session;
     },
   },

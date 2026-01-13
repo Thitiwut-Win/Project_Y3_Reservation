@@ -12,8 +12,15 @@ export const getAllEvents = async () => {
 };
 
 export const createEvent = async (name: string, description: string, venue: string, category: string,
-    datetime: string, availableSeats: number, totalSeats: number, price: number) => {
+    datetime: string, availableSeats: number, totalSeats: number, price: number, token: string) => {
     const res = await apiClient.post(`/api/events`,
-        { name, description, venue, category, datetime, availableSeats, totalSeats, price });
+        { name, description, venue, category, datetime, availableSeats, totalSeats, price },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
     return res.data;
 };

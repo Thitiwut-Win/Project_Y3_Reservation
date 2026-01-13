@@ -1,9 +1,15 @@
 import axios from "axios";
 
-export const createPayment = async (eventId: string, amount: number, seats: number) => {
+export const createPayment = async (eventId: string, amount: number, seats: number, token: string) => {
     const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/payments/create`,
         { eventId, amount, seats },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
     );
     return res.data;
 };
