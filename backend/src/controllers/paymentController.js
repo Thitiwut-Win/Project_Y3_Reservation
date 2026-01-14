@@ -27,17 +27,16 @@ async function fetchAccessToken (uuid) {
   return data;
 }
 
-async function fetchQR (token, userId, eventId, amount, uuid, paymentId) {
+async function fetchQR (token, userId, eventId, amount, uuid) {
 
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const random1 = Math.random().toString(36).substring(2, 8).toUpperCase();
-  // const generateRef3 = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 15);
-  // const random2 = generateRef3();
+  const generateRef3 = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 15);
+  const random2 = generateRef3();
   
   const ref1 = `TXN${date}${random1}`;
   const ref2 = crypto.createHash("sha256").update(`${userId}:${eventId}:${process.env.HASH_SECRET}`).digest("hex").slice(0, 20).toUpperCase();
-  const buffer = Buffer.from(paymentId.toString(), "hex");
-  const ref3 = base32.encode(buffer).replace(/=+$/, "");
+  const ref3 = `${process.env.REF_PREFIX}${random2}`;
 
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/payment/qrcode/create", {
 		method: "POST",
@@ -61,7 +60,7 @@ async function fetchQR (token, userId, eventId, amount, uuid, paymentId) {
 		})
 	})
   const data = await response.json();
-  return data;
+  return {data, ref3};
 }
 
 export const createPayment = async (req, res) => {
@@ -77,22 +76,20 @@ export const createPayment = async (req, res) => {
     const tokenResponse = await fetchAccessToken(uuid);
     if (!tokenResponse) return res.status(400).json({ message: "Error request access token" });
 
+		const token = tokenResponse.data.accessToken;
+    const {QRResponse, ref3} = await fetchQR(token, userId, eventId, amount, uuid);
+    if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
+
+    console.log(QRResponse)
     const payment = await Payment.create({
       userId: req.userId,
       eventId,
       amount,
       seats,
+      qrString: QRResponse.data.qrRawData,
       status: "pending",
+      ref3: ref3
     });
-
-		const token = tokenResponse.data.accessToken;
-    const QRResponse = await fetchQR(token, userId, eventId, amount, uuid, payment.id);
-    if (!QRResponse) return res.status(400).json({ message: "Error requesting QR" });
-
-    console.log(QRResponse)
-    payment.qrString = QRResponse.data.qrRawData;
-    payment.status = "qr_generated";
-    await payment.save();
 
     const qrImage = await qrcode.toDataURL(QRResponse.data.qrRawData);
 
@@ -110,10 +107,10 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
-    const hex = Buffer.from(base32.decode.asBytes(str)).toString("hex");
-    const paymentId = new mongoose.Types.ObjectId(hex);
-    const payment = await Payment.findById(paymentId);
+    const ref3 = req.body.billPaymentRef3;
+    const payment = await Payment.findOne(ref3);
     if (!payment) {
+      console.err("payment not found");
       return;
     }
     
@@ -121,13 +118,11 @@ export const confirmPayment = async (req, res) => {
     await payment.save();
 
     const userId = payment.userId;
-    console.log(userId)
     const user = await User.findById(userId);
     if (!user) {
-      console.log("no")
+      console.err("User not found");
       return;
     }
-    console.log(user.email)
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
       from: "Event Reservation <noreply@thitiwut.app>",
@@ -135,10 +130,8 @@ export const confirmPayment = async (req, res) => {
       subject: "Ticket reservation confirmation",
       html: "<strong>it works!</strong>",
     });
-    console.log(data);
-    console.log(error);
-    console.log(process.env.RESEND_API_KEY)
-    console.log(resend)
+    // console.log(data);
+    // console.log(error);
 
     res.json({ 
       "resCode": "00",
