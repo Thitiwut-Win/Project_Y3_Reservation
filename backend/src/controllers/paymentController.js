@@ -107,15 +107,16 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
+    console.log(req)
     const ref3 = req.body.billPaymentRef3;
     const payment = await Payment.findOne(ref3);
     if (!payment) {
       console.err("payment not found");
       return;
     }
-    
     payment.status = "paid";
     await payment.save();
+    console.log(payment)
 
     const userId = payment.userId;
     const user = await User.findById(userId);
@@ -123,6 +124,7 @@ export const confirmPayment = async (req, res) => {
       console.err("User not found");
       return;
     }
+    console.log(user)
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
       from: "Event Reservation <noreply@thitiwut.app>",
