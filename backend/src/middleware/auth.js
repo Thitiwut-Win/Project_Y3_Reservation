@@ -14,6 +14,8 @@ export const authMiddleware = (req, res, next) => {
       .status(401)
       .json({ success: false, message: "Not authorize to access this route" });
   }
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = payload.id;
     next();
   } catch (err) {
     console.log(err.stack);
