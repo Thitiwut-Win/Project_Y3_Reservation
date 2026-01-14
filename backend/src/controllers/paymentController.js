@@ -107,12 +107,16 @@ export const createPayment = async (req, res) => {
 
 export const confirmPayment = async (req, res) => {
   try {
-    console.log(req)
+    console.log(req.body)
     const ref3 = req.body.billPaymentRef3;
-    const payment = await Payment.findOne(ref3);
+    const payment = await Payment.findOne({ref3});
     if (!payment) {
-      console.err("payment not found");
-      return;
+      console.error("payment not found");
+      return res.json({
+        resCode: "01",
+        resDesc: "payment not found",
+        transactionId: req.body.transactionId,
+      });
     }
     payment.status = "paid";
     await payment.save();
@@ -121,8 +125,12 @@ export const confirmPayment = async (req, res) => {
     const userId = payment.userId;
     const user = await User.findById(userId);
     if (!user) {
-      console.err("User not found");
-      return;
+      console.error("User not found");
+      return res.json({
+        resCode: "01",
+        resDesc: "payment not found",
+        transactionId: req.body.transactionId,
+      });
     }
     console.log(user)
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -138,7 +146,7 @@ export const confirmPayment = async (req, res) => {
     res.json({ 
       "resCode": "00",
       "resDesc ": "success",
-      "transactionId": req.transactionId
+      "transactionId": req.body.transactionId
     });
   } catch (err) {
     console.error("Payment confirm error:", err);
