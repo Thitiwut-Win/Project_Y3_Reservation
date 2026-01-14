@@ -43,6 +43,9 @@ const handler = NextAuth({
           email: user.email,
           name: user.name,
         });
+        token.token = res.data.token;
+        token._id = res.data.user._id;
+        token.role = res.data.user.role ?? "user";
       }
 
       if (user) {
@@ -56,8 +59,6 @@ const handler = NextAuth({
           token: u.token ?? "",
         };
       }
-      return token;
-
       return token;
     },
     async session({ session, token }) {
