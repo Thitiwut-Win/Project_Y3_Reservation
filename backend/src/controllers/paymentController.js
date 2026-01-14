@@ -125,7 +125,7 @@ export const confirmPayment = async (req, res) => {
     if (!user) {
       return;
     }
-
+    console.log(user.email)
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
       from: "Event Reservation <noreply@thitiwut.app>",
@@ -135,6 +135,8 @@ export const confirmPayment = async (req, res) => {
     });
     console.log(data);
     console.log(error);
+    console.log(process.env.RESEND_API_KEY)
+    console.log(resend)
 
     res.json({ 
       "resCode": "00",
