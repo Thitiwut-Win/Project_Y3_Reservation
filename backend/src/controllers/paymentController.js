@@ -121,8 +121,10 @@ export const confirmPayment = async (req, res) => {
     await payment.save();
 
     const userId = payment.userId;
+    console.log(userId)
     const user = await User.findById(userId);
     if (!user) {
+      console.log("no")
       return;
     }
     console.log(user.email)
