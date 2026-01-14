@@ -133,6 +133,8 @@ export const confirmPayment = async (req, res) => {
       subject: "Ticket reservation confirmation",
       html: "<strong>it works!</strong>",
     });
+    console.log(data);
+    console.log(error);
 
     res.json({ 
       "resCode": "00",
