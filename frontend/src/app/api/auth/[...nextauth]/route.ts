@@ -44,11 +44,12 @@ const handler = NextAuth({
           name: user.name,
         });
         token.token = res.data.token;
-        token._id = res.data.user._id;
-        token.role = res.data.user.role ?? "user";
-      }
-
-      if (user) {
+        token._id = res.data._id;
+        token.role = res.data.role ?? "user";
+        token.name = res.data.name;
+        token.email = res.data.email;
+        console.log(token);
+      } else if (user) {
         const u = user as Partial<{ _id: string; name: string; email: string; role: string; token: string }>;
         token = {
           ...token,
@@ -59,9 +60,11 @@ const handler = NextAuth({
           token: u.token ?? "",
         };
       }
+      console.log(token);
       return token;
     },
     async session({ session, token }) {
+      console.log(token);
       session.user = {
         _id: token._id as string,
         name: token.name as string,
@@ -69,6 +72,7 @@ const handler = NextAuth({
         role: token.role as string,
         token: token.token as string,
       };
+      console.log(session);
       return session;
     },
   },
