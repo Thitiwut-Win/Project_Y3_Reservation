@@ -128,7 +128,7 @@ export const confirmPayment = async (req, res) => {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
-      from: "Event Reservation <noreply@resend.dev>",
+      from: "Event Reservation <noreply@thitiwut.app>",
       to: user.email,
       subject: "Ticket reservation confirmation",
       html: "<strong>it works!</strong>",

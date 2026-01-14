@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TopMenu from "@/components/TopMenu";
 import { ThemeProvider } from "next-themes";
-import AuthSync from "@/components/AuthSync";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import ToastProvider from "@/components/ToastProvider";
 import { Suspense } from "react";
@@ -28,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className="flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
         <SessionProviderWrapper>
-          <AuthSync />
           <Suspense>
             <ToastProvider />
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

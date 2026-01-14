@@ -11,7 +11,7 @@ import ConfirmDialog from "@/components/ConfirmModal";
 import { cancelTicket, getMyTickets } from "@/services/ticketService";
 
 export default function TicketsPage() {
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	const [tickets, setTickets] = useState<Ticket[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [confirmOpen, setConfirmOpen] = useState(false);
@@ -42,15 +42,20 @@ export default function TicketsPage() {
 	};
 
 	useEffect(() => {
-		if (!session?.user?.token) {
+		if (status === "loading") return;
+
+		if (status === "unauthenticated") {
 			router.replace("/authen/login");
 			toast.warning("Please login first.");
 			return;
 		}
 
+		const token = session?.user.token;
+		if (!token) return;
+
 		const fetchTickets = async () => {
 			try {
-				const data = await getMyTickets(session.user.token);
+				const data = await getMyTickets(token);
 				setTickets(data.tickets);
 			} catch {
 				toast.error("Failed to load tickets.");
@@ -72,13 +77,16 @@ export default function TicketsPage() {
 		if (!ticketToCancel) return;
 
 		try {
-			if (!session?.user?.token) {
-				router.replace("/authen/login");
-				toast.warning("Please login first.");
-				return;
-			}
-			const data = await cancelTicket(ticketToCancel, session?.user.token)
-			router.refresh();
+			const token = session?.user.token;
+			if (!token) return;
+			const data = await cancelTicket(ticketToCancel, token)
+			setTickets(prev =>
+				prev.map(t =>
+					t._id === ticketToCancel
+						? { ...t, status: "cancelled" }
+						: t
+				)
+			);
 			toast.success("Ticket cancelled!");
 		} catch (err) {
 			toast.error("Failed to cancel ticket.");
