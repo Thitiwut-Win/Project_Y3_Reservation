@@ -62,7 +62,6 @@ export default function PaymentPage() {
 
             try {
                 const data = await getEvent(eventId);
-                console.log("event loaded", data);
                 setEvent(data);
 
                 const start = 0;
@@ -91,35 +90,6 @@ export default function PaymentPage() {
     }, [eventId, seats]);
 
     useEffect(() => {
-        const handleReserve = async () => {
-            console.log(event);
-            if (!event) return;
-            console.log(seats);
-            if (seats < 1) {
-                toast.warning("Please select at least one seat.");
-                return;
-            }
-
-            setReserving(true);
-            console.log("Reserving")
-            try {
-                const token = session?.user.token;
-                if (!token) return;
-                const res = (await reserveTickets(event._id, seats, token)) as {
-                    success: boolean;
-                    tickets: { _id: string; status: string }[];
-                };
-
-                if (res.success) {
-                    toast.success(`Reserved ${res.tickets.length} ticket(s) successfully!`);
-                    router.push("/tickets");
-                }
-            } catch (err: unknown) {
-                toast.error("Reservation failed.");
-            } finally {
-                setReserving(false);
-            }
-        };
         if (!id || paid) return;
         let stopped = false;
         let timeoutId: NodeJS.Timeout;
@@ -132,8 +102,6 @@ export default function PaymentPage() {
                 const data = await getPaymentStatus(id, token);
                 console.log(data);
                 if (data.paymentStatus === "paid") {
-                    console.log(event);
-                    console.log("paid");
                     stopped = true;
                     setPaid(true);
                     toast.success("Payment confirmed!");
@@ -153,6 +121,36 @@ export default function PaymentPage() {
             if (timeoutId) clearTimeout(timeoutId);
         };
     }, [id, session, status]);
+
+    const handleReserve = async () => {
+        console.log(eventId);
+        if (!eventId) return;
+
+        if (seats < 1) {
+            toast.warning("Please select at least one seat.");
+            return;
+        }
+
+        setReserving(true);
+
+        try {
+            const token = session?.user.token;
+            if (!token) return;
+            const res = (await reserveTickets(eventId, seats, token)) as {
+                success: boolean;
+                tickets: { _id: string; status: string }[];
+            };
+
+            if (res.success) {
+                toast.success(`Reserved ${res.tickets.length} ticket(s) successfully!`);
+                router.push("/tickets");
+            }
+        } catch (err: unknown) {
+            toast.error("Reservation failed.");
+        } finally {
+            setReserving(false);
+        }
+    };
 
     const handleCompletePayment = async () => {
 
