@@ -90,6 +90,7 @@ export default function PaymentPage() {
 
     useEffect(() => {
         const handleReserve = async () => {
+            console.log("Handling");
             if (!event) return;
 
             if (seats < 1) {
@@ -98,7 +99,7 @@ export default function PaymentPage() {
             }
 
             setReserving(true);
-
+            console.log("Reserving")
             try {
                 const token = session?.user.token;
                 if (!token) return;
@@ -119,18 +120,28 @@ export default function PaymentPage() {
         };
         if (!id) return;
 
-        const interval = setInterval(async () => {
+        let stopped = false;
+
+        const poll = async () => {
+            if (stopped) return;
+
             const token = session?.user.token;
             if (!token) return;
+
             const res = await getPaymentStatus(id, token);
+
             if (res.data.status === "paid") {
-                clearInterval(interval);
+                stopped = true;
                 toast.success("Payment confirmed!");
                 handleReserve();
+                return;
             }
-        }, 2000);
 
-        return () => clearInterval(interval);
+            setTimeout(poll, 2000);
+        };
+
+
+        return;
     });
 
     const handleCompletePayment = async () => {

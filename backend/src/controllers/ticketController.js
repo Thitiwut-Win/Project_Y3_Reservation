@@ -1,5 +1,6 @@
 import Ticket from "../models/Ticket.js";
 import Event from "../models/Event.js";
+import mongoose from "mongoose";
 
 export const reserveTickets = async (req, res) => {
   const userId = req.userId;
