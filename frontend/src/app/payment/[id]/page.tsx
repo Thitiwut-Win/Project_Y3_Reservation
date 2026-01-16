@@ -129,9 +129,9 @@ export default function PaymentPage() {
                 const token = session?.user.token;
                 if (!token) return;
 
-                const res = await getPaymentStatus(id, token);
+                const data = await getPaymentStatus(id, token);
 
-                if (res.data.status === "paid") {
+                if (data.status === "paid") {
                     stopped = true;
                     toast.success("Payment confirmed!");
                     await handleReserve();
