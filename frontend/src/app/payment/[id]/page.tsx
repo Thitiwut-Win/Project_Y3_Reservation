@@ -142,7 +142,7 @@ export default function PaymentPage() {
 
 
         return;
-    });
+    }, [id, session, status]);
 
     const handleCompletePayment = async () => {
 
