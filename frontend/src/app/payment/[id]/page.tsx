@@ -23,6 +23,7 @@ export default function PaymentPage() {
     const [reserving, setReserving] = useState<boolean>(false);
     const [eventId, setEventId] = useState<string>("");
     const [seats, setSeats] = useState<number>(1);
+    const [paid, setPaid] = useState(false);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -119,7 +120,7 @@ export default function PaymentPage() {
                 setReserving(false);
             }
         };
-        if (!id) return;
+        if (!id || paid) return;
         console.log("test");
         let stopped = false;
         let timeoutId: NodeJS.Timeout;
@@ -130,18 +131,20 @@ export default function PaymentPage() {
                 if (!token) return;
 
                 const data = await getPaymentStatus(id, token);
-
+                console.log(data);
                 if (data.status === "paid") {
+                    console.log("paid");
                     stopped = true;
+                    setPaid(true);
                     toast.success("Payment confirmed!");
                     await handleReserve();
                     return;
                 }
 
-                timeoutId = setTimeout(poll, 2000);
+                timeoutId = setTimeout(poll, 3000);
             } catch (err) {
                 console.error("Polling error", err);
-                timeoutId = setTimeout(poll, 4000);
+                timeoutId = setTimeout(poll, 6000);
             }
         };
         poll();
