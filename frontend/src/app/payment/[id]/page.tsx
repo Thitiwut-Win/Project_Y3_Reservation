@@ -89,6 +89,7 @@ export default function PaymentPage() {
     }, [eventId, seats]);
 
     useEffect(() => {
+        console.log("t");
         const handleReserve = async () => {
             console.log("Handling");
             if (!event) return;
@@ -119,29 +120,35 @@ export default function PaymentPage() {
             }
         };
         if (!id) return;
-
+        console.log("test");
         let stopped = false;
-
+        let timeoutId: NodeJS.Timeout;
         const poll = async () => {
             if (stopped) return;
+            try {
+                const token = session?.user.token;
+                if (!token) return;
 
-            const token = session?.user.token;
-            if (!token) return;
+                const res = await getPaymentStatus(id, token);
 
-            const res = await getPaymentStatus(id, token);
+                if (res.data.status === "paid") {
+                    stopped = true;
+                    toast.success("Payment confirmed!");
+                    await handleReserve();
+                    return;
+                }
 
-            if (res.data.status === "paid") {
-                stopped = true;
-                toast.success("Payment confirmed!");
-                handleReserve();
-                return;
+                timeoutId = setTimeout(poll, 2000);
+            } catch (err) {
+                console.error("Polling error", err);
+                timeoutId = setTimeout(poll, 4000);
             }
-
-            setTimeout(poll, 2000);
         };
-
-
-        return;
+        poll();
+        return () => {
+            stopped = true;
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [id, session, status]);
 
     const handleCompletePayment = async () => {
