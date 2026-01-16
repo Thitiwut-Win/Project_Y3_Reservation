@@ -184,7 +184,7 @@ export default function EventsPage() {
       >
         + Submit Event
       </button>
-      <EventSubmitModal open={open} onClose={() => setOpen(false)} />
+      {/* <EventSubmitModal open={open} onClose={() => setOpen(false)} /> */}
     </main>
   );
 }

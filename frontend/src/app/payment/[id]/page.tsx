@@ -90,7 +90,6 @@ export default function PaymentPage() {
     }, [eventId, seats]);
 
     useEffect(() => {
-        console.log("t");
         const handleReserve = async () => {
             console.log("Handling");
             if (!event) return;
@@ -121,7 +120,6 @@ export default function PaymentPage() {
             }
         };
         if (!id || paid) return;
-        console.log("test");
         let stopped = false;
         let timeoutId: NodeJS.Timeout;
         const poll = async () => {
@@ -132,7 +130,7 @@ export default function PaymentPage() {
 
                 const data = await getPaymentStatus(id, token);
                 console.log(data);
-                if (data.status === "paid") {
+                if (data.paymentStatus === "paid") {
                     console.log("paid");
                     stopped = true;
                     setPaid(true);
