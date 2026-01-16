@@ -124,6 +124,20 @@ export const confirmPayment = async (req, res) => {
     payment.status = "paid";
     await payment.save();
     // console.log(payment)
+    
+    const userId = payment.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error("User not found");
+      res.status(404).json({ message: "User not found" });
+    }
+    const eventId = payment.eventId;
+    const event = await Event.findById(eventId);
+    if (!event) {
+      console.error("Event not found");
+      res.status(404).json({ message: "Event not found" });
+    }
+    emailConfirmation(payment, user, event);
 
     res.json({ 
       "resCode": "00",
@@ -166,6 +180,21 @@ export const completePayment = async (req, res) => {
     }
     payment.status = "paid";
     await payment.save();
+
+    const userId = payment.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error("User not found");
+      res.status(404).json({ message: "User not found" });
+    }
+    const eventId = payment.eventId;
+    const event = await Event.findById(eventId);
+    if (!event) {
+      console.error("Event not found");
+      res.status(404).json({ message: "Event not found" });
+    }
+    emailConfirmation(payment, user, event);
+
     res.json({
       success: true,
       paymentId: payment._id,
@@ -186,23 +215,10 @@ export const getPaymentStatus = async (req, res) => {
     if (payment.userId.toString() !== req.userId) {
       return res.status(403).json({ message: "Forbidden" });
     }
-    if (payment.status == "paid") {
-      const user = await User.findById(req.userId);
-      if (!user) {
-        console.error("User not found");
-        res.status(404).json({ message: "User not found" });
-      }
-      const eventId = payment.eventId;
-      const event = await Event.findById(eventId);
-      if (!event) {
-        console.error("Event not found");
-        res.status(404).json({ message: "Event not found" });
-      }
-      emailConfirmation(payment, user, event);
-    }
+
     res.json({
-        paymentStatus: payment.status
-      });
+      paymentStatus: payment.status
+    });
   } catch (err) {
     console.error("Check payment status error:", err);
     res.status(500).json({ message: "Failed to check payment status" });
