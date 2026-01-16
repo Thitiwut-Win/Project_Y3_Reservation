@@ -6,6 +6,7 @@ import {customAlphabet} from "nanoid"
 import { Resend } from "resend";
 import User from "../models/User.js";
 import mongoose from "mongoose";
+import Event from "../models/Event.js";
 
 async function fetchAccessToken (uuid) {
   const response = await fetch("https://api-sandbox.partners.scb/partners/sandbox/v1/oauth/token", {
