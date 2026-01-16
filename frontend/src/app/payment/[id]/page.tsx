@@ -62,6 +62,7 @@ export default function PaymentPage() {
 
             try {
                 const data = await getEvent(eventId);
+                console.log("event loaded", data);
                 setEvent(data);
 
                 const start = 0;
@@ -131,6 +132,7 @@ export default function PaymentPage() {
                 const data = await getPaymentStatus(id, token);
                 console.log(data);
                 if (data.paymentStatus === "paid") {
+                    console.log(event);
                     console.log("paid");
                     stopped = true;
                     setPaid(true);
