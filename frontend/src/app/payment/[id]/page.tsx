@@ -36,58 +36,11 @@ export default function PaymentPage() {
     }, [session, router, status]);
 
     useEffect(() => {
-        const fetchPayment = async () => {
-            try {
-                if (!id) return;
-
-                const token = session?.user.token;
-                if (!token) return;
-
-                const data = await getPayment(id, token);
-                console.log("payment loaded", data);
-
-                setEventId(data.eventId);
-                setSeats(Number(data.seats) || 1);
-                setQrImage(data.qrString);
-            } catch {
-                toast.error("Failed to load payment details.");
-            }
-        };
         fetchPayment();
-    }, [id, status, session]);
-
-    useEffect(() => {
-        const fetchEvent = async () => {
-            if (!eventId) return;
-
-            try {
-                const data = await getEvent(eventId);
-                setEvent(data);
-
-                const start = 0;
-                const end = data.price * seats;
-                const duration = 600;
-                let startTime: number | null = null;
-
-                function step(ts: number) {
-                    if (!startTime) startTime = ts;
-                    const elapsed = ts - startTime;
-                    const t = Math.min(1, elapsed / duration);
-                    const current = Math.round(start + (end - start) * t);
-                    setAmount(current);
-                    if (t < 1) requestAnimationFrame(step);
-                }
-
-                requestAnimationFrame(step);
-            } catch {
-                toast.error("Failed to load event details.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchEvent();
-    }, [eventId, seats]);
+        console.log(event);
+        console.log(eventId);
+    }, [id, status, session]);
 
     useEffect(() => {
         if (!id || paid) return;
@@ -121,6 +74,53 @@ export default function PaymentPage() {
             if (timeoutId) clearTimeout(timeoutId);
         };
     }, [id, session, status]);
+
+    const fetchPayment = async () => {
+        try {
+            if (!id) return;
+
+            const token = session?.user.token;
+            if (!token) return;
+
+            const data = await getPayment(id, token);
+            console.log("payment loaded", data);
+
+            setEventId(data.eventId);
+            setSeats(Number(data.seats) || 1);
+            setQrImage(data.qrString);
+        } catch {
+            toast.error("Failed to load payment details.");
+        }
+    };
+
+    const fetchEvent = async () => {
+        if (!eventId) return;
+
+        try {
+            const data = await getEvent(eventId);
+            setEvent(data);
+
+            const start = 0;
+            const end = data.price * seats;
+            const duration = 600;
+            let startTime: number | null = null;
+
+            function step(ts: number) {
+                if (!startTime) startTime = ts;
+                const elapsed = ts - startTime;
+                const t = Math.min(1, elapsed / duration);
+                const current = Math.round(start + (end - start) * t);
+                setAmount(current);
+                if (t < 1) requestAnimationFrame(step);
+            }
+
+            requestAnimationFrame(step);
+        } catch {
+            toast.error("Failed to load event details.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleReserve = async () => {
         console.log(eventId);
