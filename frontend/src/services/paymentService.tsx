@@ -1,8 +1,9 @@
-import axios from "axios";
+import { Payment } from "@/types/Payment";
+import apiClient from "@/utils/apiClient";
 
 export const createPayment = async (eventId: string, amount: number, seats: number, token: string) => {
-    const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/payments/create`,
+    const res = await apiClient.post(
+        `/api/payments/create`,
         { eventId, amount, seats },
         {
             headers: {
@@ -15,6 +16,17 @@ export const createPayment = async (eventId: string, amount: number, seats: numb
 };
 
 export const getPaymentStatus = async (paymentId: string) => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/payments/${paymentId}`);
+    const res = await apiClient.get(`/api/payments/${paymentId}/status`);
     return res.data; // { status: "pending" | "paid" | "failed" }
+};
+
+export const getPayment = async (paymentId: string, token: string) => {
+    const res = await apiClient.get<Payment>(`/api/payments/${paymentId}`,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    return res.data;
 };

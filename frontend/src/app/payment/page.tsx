@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { getEvent } from "@/services/eventService";
 import { createPayment } from "@/services/paymentService";
-import { reserveTickets } from "@/services/ticketService";
 import { Event as EventType } from "@/types/Event";
 import { useSession } from "next-auth/react";
 
@@ -16,9 +15,7 @@ export default function PaymentPage() {
 
 	const [event, setEvent] = useState<EventType | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [qrImage, setQrImage] = useState<string>("");
 	const [amount, setAmount] = useState<number>(0);
-	const [reserving, setReserving] = useState<boolean>(false);
 	const [generatingQR, setGeneratingQR] = useState(false);
 	const [eventId, setEventId] = useState<string>("");
 	const [seats, setSeats] = useState<number>(1);
@@ -31,7 +28,7 @@ export default function PaymentPage() {
 			toast.warning("Please login first.");
 			return;
 		}
-	}, [session, router]);
+	}, [session, router, status]);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -79,49 +76,19 @@ export default function PaymentPage() {
 			const token = session?.user.token;
 			if (!token) return;
 			const data = await createPayment(eventId, amount, seats, token);
-			setQrImage(data.qrImage);
 			toast.success("Payment QR generated! Scan it via SCB EasySandbox.");
+			router.push(`/payment/${data.paymentId}`);
 		} catch (err) {
+			setGeneratingQR(false);
 			console.error(err);
 			toast.error("Failed to create payment.");
-		} finally {
-			setGeneratingQR(false);
-		}
-	};
-
-	const handleReserve = async () => {
-		if (!event) return;
-
-		if (seats < 1) {
-			toast.warning("Please select at least one seat.");
-			return;
-		}
-
-		setReserving(true);
-
-		try {
-			const token = session?.user.token;
-			if (!token) return;
-			const res = (await reserveTickets(event._id, seats, token)) as {
-				success: boolean;
-				tickets: { _id: string; status: string }[];
-			};
-
-			if (res.success) {
-				toast.success(`Reserved ${res.tickets.length} ticket(s) successfully!`);
-				router.push("/tickets");
-			}
-		} catch (err: unknown) {
-			toast.error("Reservation failed.");
-		} finally {
-			setReserving(false);
 		}
 	};
 
 	if (loading)
 		return (
 			<p className="p-6 animate-pulse text-gray-600 dark:text-gray-300">
-				Loading payment details…
+				Loading payment details . . .
 			</p>
 		);
 
@@ -170,55 +137,19 @@ export default function PaymentPage() {
 					</span>
 				</div>
 
-				{/* QR NOT GENERATED */}
-				{!qrImage && (
-					<button
-						onClick={handleGeneratePayment}
-						disabled={generatingQR}
-						className={`mt-4 w-full flex items-center justify-center gap-3 py-3 rounded-xl font-semibold text-white 
-						transition shadow-lg ${generatingQR
-								? "bg-amber-400 dark:bg-blue-400 cursor-not-allowed"
-								: "bg-amber-500 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600"
-							}`}
-					>
-						{generatingQR ? <div className="w-5 h-5 border-2 border-white/50 border-t-white dark:border-t-gray-200 
-						animate-spin rounded-full"></div> : null}
-						{generatingQR ? "Generating QR…" : "Generate Payment QR"}
-					</button>
-				)}
-
-				{/* QR GENERATED */}
-				{qrImage && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						className="mt-4"
-					>
-						<img
-							src={qrImage}
-							alt="Payment QR"
-							className="mx-auto my-4 w-56 h-56 rounded-lg shadow-md"
-						/>
-
-						<p className="text-md text-gray-500 dark:text-gray-400 mt-6 mb-4">
-							Scan with SCB EasySandbox only.
-						</p>
-
-						<button
-							onClick={handleReserve}
-							disabled={reserving}
-							className={`w-full py-3 rounded-xl font-semibold text-white transition shadow-lg ${reserving
-								? "bg-amber-400 dark:bg-blue-400"
-								: "bg-amber-600 hover:bg-amber-700 dark:bg-blue-600 dark:hover:bg-indigo-600"
-								}`}
-						>
-							{reserving ? "Reserving..." : "Complete Reservation"}
-						</button>
-						<p className="text-md text-gray-500 dark:text-gray-400 mt-4 mb-6">
-							Wait for confirmation. If you do not have the app, you can press complete.
-						</p>
-					</motion.div>
-				)}
+				<button
+					onClick={handleGeneratePayment}
+					disabled={generatingQR}
+					className={`mt-4 w-full flex items-center justify-center gap-3 py-3 rounded-xl font-semibold text-white 
+					transition shadow-lg ${generatingQR
+							? "bg-amber-400 dark:bg-blue-400 cursor-not-allowed"
+							: "bg-amber-500 hover:bg-amber-600 dark:bg-blue-600 dark:hover:bg-indigo-600"
+						}`}
+				>
+					{generatingQR ? <div className="w-5 h-5 border-2 border-white/50 border-t-white dark:border-t-gray-200 
+					animate-spin rounded-full"></div> : null}
+					{generatingQR ? "Generating QR…" : "Generate Payment QR"}
+				</button>
 			</motion.div>
 		</main>
 	);

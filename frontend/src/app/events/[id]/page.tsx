@@ -30,6 +30,7 @@ export default function EventPage() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
+        if (!id) return;
         const data = await getEvent(id);
         setEvent(data);
       } catch {

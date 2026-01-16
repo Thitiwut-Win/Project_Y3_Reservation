@@ -65,7 +65,7 @@ export default function TicketsPage() {
 		};
 
 		fetchTickets();
-	}, [session, router]);
+	}, [session, router, status]);
 
 
 	const confirmCancel = (id: string) => {
@@ -100,7 +100,7 @@ export default function TicketsPage() {
 		return (
 			<main className="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
 				<p className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-200">
-					Loading tickets…
+					Loading tickets . . .
 				</p>
 				<LinearProgress />
 				<div className="mt-6 space-y-4">

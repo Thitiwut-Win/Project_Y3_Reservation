@@ -10,6 +10,7 @@ export const authMiddleware = (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
   if (!token || token === "null") {
+    console.log("Not authorized by auth")
     return res
       .status(401)
       .json({ success: false, message: "Not authorize to access this route" });

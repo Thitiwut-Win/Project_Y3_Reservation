@@ -6,6 +6,13 @@ export const reserveTickets = async (req, res) => {
   const { eventId } = req.params;
   const seatsRequested = Number(req.body.seats);
 
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user id" });
+  }
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ message: "Invalid event id" });
+  }
+
   if (seatsRequested < 1) {
     return res.status(400).json({ message: "Invalid seats requested" });
   }
@@ -47,6 +54,12 @@ export const cancelTicket = async (req, res) => {
     const userId = req.userId;
     const { ticketId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(ticketId)) {
+      return res.status(400).json({ message: "Invalid Ticket id" });
+    }
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
     if (ticket.user.toString() !== userId)
@@ -78,6 +91,9 @@ export const cancelTicket = async (req, res) => {
 export const getMyTickets = async (req, res) => {
   try {
     const userId = req.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
     const tickets = await Ticket.find({ user: userId }).populate("event");
 
     res.json({ amount: tickets.length, tickets });
