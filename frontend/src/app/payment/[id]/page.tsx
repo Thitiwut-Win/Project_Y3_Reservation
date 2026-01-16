@@ -120,7 +120,9 @@ export default function PaymentPage() {
         if (!id) return;
 
         const interval = setInterval(async () => {
-            const res = await getPaymentStatus(id);
+            const token = session?.user.token;
+            if (!token) return;
+            const res = await getPaymentStatus(id, token);
             if (res.data.status === "paid") {
                 clearInterval(interval);
                 toast.success("Payment confirmed!");
