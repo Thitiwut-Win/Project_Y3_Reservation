@@ -36,16 +36,12 @@ export default function PaymentPage() {
     }, [session, router, status]);
 
     useEffect(() => {
-        let stopped = false;
-        let timeoutId: NodeJS.Timeout;
-        const fetchData = async () => {
-            await fetchPayment();
-            await fetchEvent();
-            if (!stopped) timeoutId = setTimeout(fetchData, 3000);
-            if (!!eventId) stopped = true;
-        }
-        fetchData();
+        fetchPayment();
     }, [id, status, session]);
+
+    useEffect(() => {
+        fetchEvent();
+    }, [seats]);
 
     useEffect(() => {
         if (!id || paid) return;
