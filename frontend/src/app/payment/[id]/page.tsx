@@ -36,10 +36,13 @@ export default function PaymentPage() {
     }, [session, router, status]);
 
     useEffect(() => {
-        fetchPayment();
-        fetchEvent();
-        console.log(event);
-        console.log(eventId);
+        const fetchData = async () => {
+            await fetchPayment();
+            await fetchEvent();
+            console.log(event);
+            console.log(eventId);
+        }
+        fetchData();
     }, [id, status, session]);
 
     useEffect(() => {

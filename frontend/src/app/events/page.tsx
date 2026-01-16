@@ -177,14 +177,14 @@ export default function EventsPage() {
           ))}
         </div>
       )}
-      <button
+      {/* <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 px-6 py-4 rounded-xl bg-yellow-500 dark:bg-blue-600 text-white font-semibold shadow-lg hover:shadow-2xl
         hover:bg-amber-500 dark:hover:bg-indigo-500 hover:scale-105 transition-all"
       >
         + Submit Event
       </button>
-      {/* <EventSubmitModal open={open} onClose={() => setOpen(false)} /> */}
+      <EventSubmitModal open={open} onClose={() => setOpen(false)} /> */}
     </main>
   );
 }
