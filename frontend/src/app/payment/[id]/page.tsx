@@ -91,9 +91,9 @@ export default function PaymentPage() {
 
     useEffect(() => {
         const handleReserve = async () => {
-            console.log("Handling");
+            console.log(event);
             if (!event) return;
-
+            console.log(seats);
             if (seats < 1) {
                 toast.warning("Please select at least one seat.");
                 return;
