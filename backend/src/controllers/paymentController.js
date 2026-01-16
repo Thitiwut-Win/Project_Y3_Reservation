@@ -177,7 +177,7 @@ export const completePayment = async (req, res) => {
 
 export const getPaymentStatus = async (req, res) => {
   try {
-    const paymentId = req.body;
+    const paymentId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(paymentId)) {
       return res.status(400).json({ message: "Invalid payment id" });
     }
