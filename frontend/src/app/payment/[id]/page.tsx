@@ -42,7 +42,8 @@ export default function PaymentPage() {
     useEffect(() => {
         if (!id || paid) return;
         let stopped = false;
-        let timeoutId: NodeJS.Timeout;
+        let timeoutId1: NodeJS.Timeout;
+        let timeoutId2: NodeJS.Timeout;
         const poll = async () => {
             if (stopped) return;
             try {
@@ -59,16 +60,18 @@ export default function PaymentPage() {
                     return;
                 }
 
-                timeoutId = setTimeout(poll, 3000);
+                timeoutId1 = setTimeout(poll, 3000);
+                timeoutId2 = setTimeout(fetchEvent, 3000);
             } catch (err) {
                 console.error("Polling error", err);
-                timeoutId = setTimeout(poll, 6000);
+                timeoutId1 = setTimeout(poll, 6000);
             }
         };
         poll();
         return () => {
             stopped = true;
-            if (timeoutId) clearTimeout(timeoutId);
+            if (timeoutId1) clearTimeout(timeoutId1);
+            if (timeoutId2) clearTimeout(timeoutId2);
         };
     }, [id, session, status]);
 
@@ -87,13 +90,11 @@ export default function PaymentPage() {
             setQrImage(data.qrString);
         } catch {
             toast.error("Failed to load payment details.");
-        } finally {
-            fetchEvent();
         }
     };
 
     const fetchEvent = async () => {
-        if (!eventId) return;
+        if (!eventId || event != null) return;
 
         try {
             const data = await getEvent(eventId);
