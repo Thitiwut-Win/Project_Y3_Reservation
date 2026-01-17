@@ -8,7 +8,7 @@ import { getEvent } from "@/services/eventService";
 import { reserveTickets } from "@/services/ticketService";
 import { Event as EventType } from "@/types/Event";
 import { useSession } from "next-auth/react";
-import { getPayment, getPaymentStatus } from "@/services/paymentService";
+import { completePayment, getPayment, getPaymentStatus } from "@/services/paymentService";
 import { LinearProgress } from "@mui/material";
 
 export default function PaymentPage() {
@@ -155,7 +155,10 @@ export default function PaymentPage() {
     };
 
     const handleCompletePayment = async () => {
-
+        const token = session?.user.token;
+        if (!token) return;
+        const res = await completePayment(id, token)
+        handleReserve();
     }
 
     if (loading) {

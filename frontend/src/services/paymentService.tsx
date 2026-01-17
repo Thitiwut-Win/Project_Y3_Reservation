@@ -39,3 +39,16 @@ export const getPayment = async (paymentId: string, token: string) => {
     );
     return res.data;
 };
+
+export const completePayment = async (paymentId: string, token: string) => {
+    const res = await apiClient.post(
+        `/api/payments/${paymentId}`,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    return res.data;
+}
