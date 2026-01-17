@@ -10,6 +10,7 @@ import { Event as EventType } from "@/types/Event";
 import { useSession } from "next-auth/react";
 import { getPayment, getPaymentStatus } from "@/services/paymentService";
 import { LinearProgress } from "@mui/material";
+import { Payment } from "@/types/Payment";
 
 export default function PaymentPage() {
     const { data: session, status } = useSession();
@@ -21,9 +22,9 @@ export default function PaymentPage() {
     const [qrImage, setQrImage] = useState<string>("");
     const [amount, setAmount] = useState<number>(0);
     const [reserving, setReserving] = useState<boolean>(false);
-    const [eventId, setEventId] = useState<string>("");
     const [seats, setSeats] = useState<number>(1);
     const [paid, setPaid] = useState(false);
+    const [payment, setPayment] = useState<Payment | null>(null);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -43,7 +44,6 @@ export default function PaymentPage() {
         if (!id || paid) return;
         let stopped = false;
         let timeoutId1: NodeJS.Timeout;
-        let timeoutId2: NodeJS.Timeout;
         const poll = async () => {
             if (stopped) return;
             try {
@@ -61,7 +61,6 @@ export default function PaymentPage() {
                 }
 
                 timeoutId1 = setTimeout(poll, 3000);
-                timeoutId2 = setTimeout(fetchEvent, 3000);
             } catch (err) {
                 console.error("Polling error", err);
                 timeoutId1 = setTimeout(poll, 6000);
@@ -71,7 +70,6 @@ export default function PaymentPage() {
         return () => {
             stopped = true;
             if (timeoutId1) clearTimeout(timeoutId1);
-            if (timeoutId2) clearTimeout(timeoutId2);
         };
     }, [id, session, status]);
 
@@ -82,26 +80,19 @@ export default function PaymentPage() {
             const token = session?.user.token;
             if (!token) return;
 
-            const data = await getPayment(id, token);
-            console.log("payment loaded", data);
+            const paymentData = await getPayment(id, token);
+            setPayment(paymentData);
+            console.log("payment loaded", paymentData);
 
-            setEventId(data.eventId);
-            setSeats(Number(data.seats) || 1);
-            setQrImage(data.qrString);
-        } catch {
-            toast.error("Failed to load payment details.");
-        }
-    };
+            setSeats(Number(paymentData.seats) || 1);
+            setQrImage(paymentData.qrString);
 
-    const fetchEvent = async () => {
-        if (!eventId || event != null) return;
-
-        try {
-            const data = await getEvent(eventId);
-            setEvent(data);
+            console.log(paymentData.eventId, seats);
+            const eventData = await getEvent(paymentData.eventId);
+            setEvent(eventData);
 
             const start = 0;
-            const end = data.price * seats;
+            const end = eventData.price * seats;
             const duration = 600;
             let startTime: number | null = null;
 
@@ -116,15 +107,15 @@ export default function PaymentPage() {
 
             requestAnimationFrame(step);
         } catch {
-            toast.error("Failed to load event details.");
+            toast.error("Failed to load payment details.");
         } finally {
             setLoading(false);
         }
     };
 
     const handleReserve = async () => {
-        console.log(eventId);
-        if (!eventId) return;
+        console.log(payment)
+        if (!payment) return;
 
         if (seats < 1) {
             toast.warning("Please select at least one seat.");
@@ -136,7 +127,7 @@ export default function PaymentPage() {
         try {
             const token = session?.user.token;
             if (!token) return;
-            const res = (await reserveTickets(eventId, seats, token)) as {
+            const res = (await reserveTickets(payment.eventId, seats, token)) as {
                 success: boolean;
                 tickets: { _id: string; status: string }[];
             };
