@@ -41,7 +41,7 @@ export default function PaymentPage() {
 
     useEffect(() => {
         fetchEvent();
-    }, [seats]);
+    }, [eventId, seats]);
 
     useEffect(() => {
         if (!id || paid) return;
