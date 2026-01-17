@@ -33,17 +33,11 @@ export default function PaymentPage() {
             toast.warning("Please login first.");
             return;
         }
-    }, [session, router, status]);
+    }, [router, status]);
 
     useEffect(() => {
         fetchPayment();
-    }, [id, status, session]);
-
-    useEffect(() => {
-        if (!loading) return;
-        console.log(event, eventId, seats);
-        fetchEvent();
-    }, [eventId, seats]);
+    }, [id, status]);
 
     useEffect(() => {
         if (!id || paid) return;
@@ -93,6 +87,8 @@ export default function PaymentPage() {
             setQrImage(data.qrString);
         } catch {
             toast.error("Failed to load payment details.");
+        } finally {
+            fetchEvent();
         }
     };
 
