@@ -40,7 +40,8 @@ export default function PaymentPage() {
     }, [id, status, session]);
 
     useEffect(() => {
-        if (event != null) return;
+        if (!loading) return;
+        console.log(event, eventId, seats);
         fetchEvent();
     }, [eventId, seats]);
 
