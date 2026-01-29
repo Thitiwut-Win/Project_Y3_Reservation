@@ -9,7 +9,7 @@ export const authMiddleware = (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
-  console.log(token);
+  // console.log(token);
   if (!token || token === "null") {
     console.log("Not authorized by auth")
     return res

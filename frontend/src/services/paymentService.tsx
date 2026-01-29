@@ -43,6 +43,7 @@ export const getPayment = async (paymentId: string, token: string) => {
 export const completePayment = async (paymentId: string, token: string) => {
     const res = await apiClient.post(
         `/api/payments/${paymentId}`,
+        {},
         {
             headers: {
                 "Content-Type": "application/json",
