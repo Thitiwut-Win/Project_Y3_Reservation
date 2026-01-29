@@ -263,7 +263,7 @@ const emailConfirmation = async (payment, user, event) => {
               You can view your ticket anytime from your account.
             </p>
 
-            <a href="${process.env.FRONTEND_URL}/tickets" style=" display: inline-block; margin-top: 16px;
+            <a href="${process.env.NEXTAUTH_URL}/tickets" style=" display: inline-block; margin-top: 16px;
                 padding: 12px 18px; background: #2563eb; color: #ffffff; text-decoration: none;
                 border-radius: 8px; font-weight: 500;
             ">
